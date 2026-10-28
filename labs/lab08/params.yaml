@@ -1,10 +1,5 @@
 # Lab 8 -- everything that can change the model lives in this file.
-#
-# STARTING POINT: this is a faithful transcription of what
-# supplied_model/train_model.py does today -- flaws included. Your job in
-# Part B is to make it produce the same model every time, and to decide which
-# of these features the model is allowed to see.
-run_name: supplied-transcribed
+run_name: honest-reproducible
 
 data:
   path: data/claims/claims.parquet
@@ -13,6 +8,7 @@ data:
   holdout_months: [12, 13]
 
 model:
+  random_state: 42
   hyperparameters:
     max_iter: 250
     learning_rate: 0.08
@@ -28,7 +24,9 @@ features:
     - length_of_stay_days
     - room_rent_ratio
     - claims_in_last_90d
-    - assessor_note_length
+    # Dropped assessor_note_length: target leak. Case notes are written by assessors
+    # during manual review (after the triage decision). Auto-approved claims or claims
+    # at intake do not yet have an assessor note.
   categorical:
     - plan
     - language

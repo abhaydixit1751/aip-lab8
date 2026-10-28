@@ -1,0 +1,15 @@
+﻿holdout: 3,796 claims, reject rate 0.166
+supplied model   AUC 0.9973   accuracy@0.5 0.9810
+approve everything                accuracy     0.8338
+
+feature                     AUC drop when shuffled
+assessor_note_length                        0.4328
+policy_tenure_months                        0.0066
+diagnosis_group                             0.0059
+hospital_network                            0.0006
+claim_amount                                0.0003
+documents_complete                          0.0002
+claims_in_last_90d                          0.0001
+declared_ped                                0.0001
+
+For the top feature, answer before you go on: at the moment the model has to decide on a claim, does this value exist yet?

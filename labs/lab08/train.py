@@ -152,7 +152,17 @@ def load_data(p: dict) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     how the file happened to be written. Ask: if someone re-exported the parquet
     with the rows shuffled, would your fingerprint change?
     """
-    raise NotImplementedError("Part B -- see CODE_GUIDE.md")
+    data_path = Path(p["data"]["path"])
+    full_path = data_path if data_path.is_absolute() else ROOT / data_path
+    df = pd.read_parquet(full_path)
+    df = df.sort_values("claim_id").reset_index(drop=True)
+
+    t_start, t_end = p["data"]["train_months"]
+    h_start, h_end = p["data"]["holdout_months"]
+
+    train = df[df["month_index"].between(t_start, t_end)].reset_index(drop=True)
+    hold = df[df["month_index"].between(h_start, h_end)].reset_index(drop=True)
+    return df, train, hold
 
 
 def prep(rows: pd.DataFrame, p: dict) -> pd.DataFrame:
@@ -166,7 +176,17 @@ def prep(rows: pd.DataFrame, p: dict) -> pd.DataFrame:
     was handed. A classic source of silent disagreement -- or is it, here?
     Test it before you "fix" it: CONCEPTS.md, "Category order".
     """
-    raise NotImplementedError("Part B -- see CODE_GUIDE.md")
+    feats = p["features"]
+    numeric = list(feats.get("numeric", []))
+    categorical = list(feats.get("categorical", []))
+    boolean = list(feats.get("boolean", []))
+    cols = numeric + categorical + boolean
+    X = rows[cols].copy()
+    for c in categorical:
+        X[c] = X[c].astype("category")
+    for c in boolean:
+        X[c] = X[c].astype(int)
+    return X
 
 
 def build_model(p: dict):
@@ -177,7 +197,13 @@ def build_model(p: dict):
     `early_stopping`, `validation_fraction`, `random_state`), and make the fix
     a value in params.yaml, not a literal in code.
     """
-    raise NotImplementedError("Part B -- see CODE_GUIDE.md")
+    from sklearn.ensemble import HistGradientBoostingClassifier
+
+    params_model = p.get("model", {})
+    kwargs = dict(params_model.get("hyperparameters", {}))
+    if "random_state" in params_model:
+        kwargs["random_state"] = params_model["random_state"]
+    return HistGradientBoostingClassifier(categorical_features="from_dtype", **kwargs)
 
 
 if __name__ == "__main__":

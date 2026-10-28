@@ -1,0 +1,17 @@
+﻿build      accuracy     auc  n_iter   (as train_model.py reports them)
+shipped       0.981   0.997      91   (from MODEL_CARD.md)
+run 1        0.9810  0.9974      78
+run 2        0.9813  0.9974      82
+run 3        0.9792  0.9975      74
+
+All 45,365 claims, pairwise.  Decision = reject-risk >= 0.5
+
+pair                    probs differ  max |dp|  decisions    per day at 2,000/day
+shipped vs run 1              45,365     0.797        277                    12.2
+shipped vs run 2              45,365     0.679        254                    11.2
+shipped vs run 3              45,365     0.859        256                    11.3
+run 1 vs run 2                45,365     0.626        251                    11.1
+run 1 vs run 3                45,365     0.685        245                    10.8
+run 2 vs run 3                45,365     0.714        270                    11.9
+
+Worst pair: 277 of 45,365 claims (0.61%) get a different decision depending on which build of 'the same model' is deployed.

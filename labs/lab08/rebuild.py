@@ -60,7 +60,14 @@ def one_build(i: int, workdir: Path) -> tuple[str, object, dict]:
     run_dir = workdir / f"run{i}"
     (run_dir / "supplied_model").mkdir(parents=True)
     shutil.copy(SUPPLIED / "train_model.py", run_dir / "supplied_model" / "train_model.py")
-    (run_dir / "data").symlink_to(ROOT / "data")      # the script reads ../data/claims/...
+    try:
+        (run_dir / "data").symlink_to(ROOT / "data")      # the script reads ../data/claims/...
+    except OSError:
+        try:
+            import _winapi
+            _winapi.CreateJunction(str(ROOT / "data"), str(run_dir / "data"))
+        except Exception:
+            shutil.copytree(ROOT / "data", run_dir / "data")
     r = subprocess.run([sys.executable, "train_model.py"], cwd=run_dir / "supplied_model",
                        capture_output=True, text=True, timeout=600)
     if r.returncode != 0:

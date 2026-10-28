@@ -1,0 +1,42 @@
+﻿environment     A                     B                     
+in_container    False                 False                 
+machine         AMD64                 AMD64                 
+numpy           2.5.4                 2.5.4                 
+omp_num_threads default               default               
+pandas          3.1.0                 3.1.0                 
+python          3.12.10               3.12.10               
+sklearn         1.9.1                 1.9.1                 
+system          Windows               Windows               
+
+A  9be217b641df06cd8c95a2d2b535f3dc4b6e79d6b38338464e567c7d87142456
+B  9be217b641df06cd8c95a2d2b535f3dc4b6e79d6b38338464e567c7d87142456
+
+BIT-IDENTICAL -- all 45,365 probabilities match exactly.
+environment     A                     B                     
+in_container    False                 False                 
+machine         AMD64                 AMD64                 
+numpy           2.5.4                 2.5.4                 
+omp_num_threads default               1                     <- differs
+pandas          3.1.0                 3.1.0                 
+python          3.12.10               3.12.10               
+sklearn         1.9.1                 1.9.1                 
+system          Windows               Windows               
+
+A  9be217b641df06cd8c95a2d2b535f3dc4b6e79d6b38338464e567c7d87142456
+B  9be217b641df06cd8c95a2d2b535f3dc4b6e79d6b38338464e567c7d87142456
+
+BIT-IDENTICAL -- all 45,365 probabilities match exactly.
+environment     A                     B                     
+in_container    False                 False                 
+machine         AMD64                 AMD64                 
+numpy           2.5.4                 2.5.4                 
+omp_num_threads default               default               
+pandas          3.1.0                 3.1.0                 
+python          3.12.10               3.12.10               
+sklearn         1.9.1                 1.9.1                 
+system          Windows               Windows               
+
+A  9be217b641df06cd8c95a2d2b535f3dc4b6e79d6b38338464e567c7d87142456
+B  9be217b641df06cd8c95a2d2b535f3dc4b6e79d6b38338464e567c7d87142456
+
+BIT-IDENTICAL -- all 45,365 probabilities match exactly.

@@ -73,7 +73,12 @@ def importance(model, X: pd.DataFrame, y: np.ndarray) -> list[tuple[str, float]]
     Fix its random_state -- this is a lab about reproducibility -- and use a
     few repeats so one lucky shuffle does not decide the answer.
     """
-    raise NotImplementedError("Part A -- see CONCEPTS.md, 'Permutation importance'")
+    from sklearn.inspection import permutation_importance
+
+    r = permutation_importance(model, X, y, scoring="roc_auc", n_repeats=5, random_state=0)
+    ranking = [(col, float(mean_drop)) for col, mean_drop in zip(X.columns, r.importances_mean)]
+    ranking.sort(key=lambda x: x[1], reverse=True)
+    return ranking
 
 
 if __name__ == "__main__":
