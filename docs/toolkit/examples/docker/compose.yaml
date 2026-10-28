@@ -1,0 +1,51 @@
+# The primer's example stack. Run from this folder, on your laptop:
+#
+#   docker compose up -d --wait api              (or: make up)
+#   docker compose --profile eval run --rm evaluate
+#   docker compose down -v
+#
+# `name:` is the project name. Every container, network and volume compose
+# creates is prefixed with it: aip2primer-api-1, aip2primer_back, aip2primer_visits.
+name: aip2primer
+
+services:
+  api:
+    build:
+      context: .                       # the build context, as in `docker build .`
+      dockerfile: Dockerfile
+      target: runtime
+    image: aip2-primer-hello:dev       # the tag compose gives what it builds
+    ports:
+      - "${API_PORT:-18910}:8000"      # HOST:CONTAINER; the host side is overridable
+    environment:
+      GREETING: ${GREETING:-Hello}     # from your shell or .env, else "Hello"
+    env_file:                          # every line of .env, passed into the container
+      - path: .env
+        required: false
+    volumes:
+      - visits:/data                   # named volume: survives `down`, not `down -v`
+    networks: [front, back]
+
+  test:                                # make test: the unit tests, in their own image
+    profiles: [test]
+    build: {context: ., target: test}
+    image: aip2-primer-hello:test
+    network_mode: none                 # unit tests need no network at all
+
+  evaluate:                            # make eval / make gate
+    profiles: [eval]
+    image: aip2-primer-hello:dev       # reuses the api image: it has Python
+    command: ["python", "/eval/evaluate.py", "--url", "http://api:8000"]
+    volumes:
+      - ./eval:/eval:ro                # bind mount: the eval set lives in the repo
+    networks: [back]                   # only `back`: it can reach api, and nothing else
+    depends_on:
+      api:
+        condition: service_healthy     # wait for the image's HEALTHCHECK, not just "started"
+
+networks:
+  front: {}                            # ordinary: published ports work, internet works
+  back: {internal: true}               # no route out of the machine
+
+volumes:
+  visits: {}

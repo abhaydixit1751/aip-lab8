@@ -1,0 +1,43 @@
+# Lab 8 -- everything that can change the model lives in this file.
+#
+# STARTING POINT: this is a faithful transcription of what
+# supplied_model/train_model.py does today -- flaws included. Your job in
+# Part B is to make it produce the same model every time, and to decide which
+# of these features the model is allowed to see.
+run_name: supplied-transcribed
+
+data:
+  path: data/claims/claims.parquet
+  label: rejected
+  train_months: [0, 11]
+  holdout_months: [12, 13]
+
+model:
+  hyperparameters:
+    max_iter: 250
+    learning_rate: 0.08
+
+features:
+  numeric:
+    - sum_insured
+    - eldest_age
+    - policy_tenure_months
+    - city_tier
+    - claim_amount
+    - claim_to_si_ratio
+    - length_of_stay_days
+    - room_rent_ratio
+    - claims_in_last_90d
+    - assessor_note_length
+  categorical:
+    - plan
+    - language
+    - channel
+    - diagnosis_group
+    - admission_type
+    - hospital_network
+    - claim_route
+  boolean:
+    - declared_ped
+    - documents_complete
+    - notified_on_time

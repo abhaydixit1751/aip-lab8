@@ -1,0 +1,55 @@
+<svg viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Who versions what" >
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0L10 5L0 10z" fill="#626A78"/></marker></defs>
+  <style>
+    .vd-lbl{font-family:Archivo,Helvetica,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.6px}
+    .vd-big{font-family:Archivo,Helvetica,sans-serif;font-size:22px;font-weight:700}
+    .vd-f{font-family:"IBM Plex Mono",Menlo,monospace;font-size:15px}
+    .vd-s{font-family:"Source Serif 4",Georgia,serif;font-size:15px}
+  </style>
+  <!-- git: the repo -->
+  <rect x="0" y="0" width="390" height="300" rx="14" fill="#DCEBE8" stroke="#1D5E5C" stroke-width="2"/>
+  <text x="18" y="28" class="vd-lbl" fill="#1D5E5C">GIT · YOUR REPO</text>
+  <text x="18" y="56" class="vd-big" fill="#14161B">which version</text>
+  <g class="vd-f" fill="#14161B">
+    <text x="22" y="96">labs/lab08/train.py</text><text x="236" y="96" class="vd-s" fill="#626A78">the code</text>
+    <text x="22" y="126">params.yaml</text><text x="236" y="126" class="vd-s" fill="#626A78">the settings</text>
+    <text x="22" y="156">dvc.yaml</text><text x="236" y="156" class="vd-s" fill="#626A78">the recipe</text>
+    <text x="22" y="186">dvc.lock</text><text x="236" y="186" class="vd-s" fill="#626A78">the receipt (md5s)</text>
+    <text x="22" y="216">metrics.json</text><text x="236" y="216" class="vd-s" fill="#626A78">small, diffable</text>
+  </g>
+  <rect x="14" y="236" width="362" height="48" rx="8" fill="#FFFFFF" stroke="#8A6A16" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="26" y="266" class="vd-f" fill="#14161B">claims.parquet.dvc</text>
+  <text x="208" y="266" class="vd-s" fill="#8A6A16">a pointer: md5 + size</text>
+  <!-- DVC cache -->
+  <rect x="450" y="150" width="250" height="134" rx="14" fill="#F6EEDA" stroke="#8A6A16" stroke-width="2"/>
+  <text x="468" y="178" class="vd-lbl" fill="#8A6A16">DVC CACHE · .dvc/cache</text>
+  <text x="468" y="206" class="vd-big" fill="#14161B">the bytes</text>
+  <text x="468" y="234" class="vd-s" fill="#2B303A">the data, the model,</text>
+  <text x="468" y="256" class="vd-s" fill="#2B303A">filed by their md5</text>
+  <path d="M390 260 H446" stroke="#626A78" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="404" y="250" class="vd-f" fill="#626A78" font-size="12">md5</text>
+  <!-- DVC remote -->
+  <rect x="760" y="150" width="240" height="134" rx="14" fill="#FFFFFF" stroke="#8A6A16" stroke-width="2"/>
+  <text x="778" y="178" class="vd-lbl" fill="#8A6A16">DVC REMOTE · .dvcstore</text>
+  <text x="778" y="206" class="vd-big" fill="#14161B">bytes for others</text>
+  <text x="778" y="234" class="vd-s" fill="#2B303A">today a folder on one</text>
+  <text x="778" y="256" class="vd-s" fill="#2B303A">laptop; at work, S3/GCS</text>
+  <path d="M702 205 H756" stroke="#626A78" stroke-width="2.5" marker-end="url(#ah)"/>
+  <path d="M756 240 H704" stroke="#626A78" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="706" y="198" class="vd-f" fill="#626A78" font-size="12">push</text>
+  <text x="712" y="258" class="vd-f" fill="#626A78" font-size="12">pull</text>
+  <!-- MLflow -->
+  <rect x="450" y="0" width="550" height="110" rx="14" fill="#F7E7E1" stroke="#AE4224" stroke-width="2"/>
+  <text x="468" y="28" class="vd-lbl" fill="#AE4224">MLFLOW · mlflow.db · port 18500</text>
+  <text x="468" y="58" class="vd-big" fill="#14161B">what you tried</text>
+  <text x="468" y="88" class="vd-s" fill="#2B303A">runs and metrics, compared: a lab notebook, not what you ship</text>
+  <!-- container -->
+  <rect x="0" y="318" width="1000" height="44" rx="10" fill="#14161B"/>
+  <text x="18" y="346" class="vd-lbl" fill="#fff">THE CONTAINER + uv.lock</text>
+  <text x="300" y="346" class="vd-s" fill="#C3D0E0">everything else: Python, every library, the OS maths libraries</text>
+  <!-- clean clone -->
+  <text x="0" y="398" class="vd-lbl" fill="#626A78">THE CLEAN CLONE (LAB 8, PART C4)</text>
+  <text x="0" y="428" class="vd-f" fill="#14161B">git clone  →  dvc pull  →  dvc repro --force  →  dvc metrics diff</text>
+  <text x="742" y="428" class="vd-s" fill="#1D5E5C" font-weight="700">nothing printed = same model</text>
+</svg>

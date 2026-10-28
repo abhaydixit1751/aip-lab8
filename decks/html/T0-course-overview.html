@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Subrat Panda">
+<meta name="description" content="AI in Practice 2, orientation -- the eight weeks, four arcs and fourteen labs, what each builds and what the reference measured, how labs run, assessment, the capstone and Demo Day, and setup before Lab 8.">
+<title>AI in Practice 2 · The Course, End to End</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#FCFCFD; --surface:#F1F3F6; --sunk:#E7EAEF;
+  --ink:#14161B; --body:#2B303A; --muted:#626A78; --faint:#8A929F;
+  --rule:#DCE0E7; --rule-strong:#BFC5D0;
+  --slate:#16212E; --slate-2:#1E2C3D; --slate-ink:#E9EDF3; --slate-muted:#8FA3BC;
+  --accent:#AE4224; --accent-ink:#8E3520; --accent-soft:#F7E7E1;
+  --teal:#1D5E5C; --teal-soft:#DCEBE8;
+  --gold:#8A6A16; --gold-soft:#F6EEDA;
+  --ok:#1F6B45; --ok-soft:#DFF0E6;
+  --shadow:0 1px 2px rgba(20,22,27,.06), 0 18px 44px -28px rgba(20,22,27,.4);
+  --stage-w:1280px; --stage-h:720px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#0B0F14}
+body{font-family:"Source Serif 4",Georgia,serif;color:var(--body);-webkit-font-smoothing:antialiased}
+.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- stage ---------- */
+#stage{position:absolute;top:50%;left:50%;width:var(--stage-w);height:var(--stage-h);
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.slide{position:absolute;inset:0;padding:56px 72px;display:none;flex-direction:column;
+  background:var(--paper);animation:in .28s ease both}
+.slide.on{display:flex}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide{animation:none}}
+
+/* ---------- typography ---------- */
+h1{font-family:Archivo,sans-serif;font-size:56px;font-weight:700;line-height:1.03;
+  letter-spacing:-.025em;margin:0 0 16px;color:#fff;text-wrap:balance}
+h2{font-family:Archivo,sans-serif;font-size:38px;font-weight:600;letter-spacing:-.018em;
+  margin:0 0 6px;color:var(--ink);line-height:1.12;text-wrap:balance}
+h3{font-family:Archivo,sans-serif;font-size:15px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+p{margin:0 0 15px;font-size:22px;line-height:1.5;max-width:64ch}
+.sub{font-size:19px;color:var(--accent-ink);font-weight:600;font-family:Archivo,sans-serif;
+  margin:-2px 0 20px}
+.rule{height:2px;background:var(--ink);margin:14px 0 26px;flex:none}
+.small{font-size:17px;line-height:1.45;color:var(--muted)}
+.tiny{font-size:14.5px;line-height:1.45;color:var(--faint)}
+b,strong{font-weight:600;color:var(--ink)}
+em{font-style:italic}
+.body-scroll{overflow-y:auto;flex:1;min-height:0;padding-right:6px}
+
+/* ---------- title & section slides ---------- */
+.dark{background:var(--slate);color:var(--slate-ink)}
+.dark h2{color:#fff}.dark p{color:#C3D0E0}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--slate-muted);margin:0 0 26px}
+.tick{width:74px;height:5px;background:var(--accent);margin:0 0 30px;border-radius:2px}
+.byline{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;
+  border-top:1px solid rgba(255,255,255,.14);padding-top:18px;
+  font-family:Archivo,sans-serif;font-size:15px;color:var(--slate-muted)}
+.byline b{color:#fff;font-weight:600;display:block;font-size:17px}
+.secnum{font-family:"IBM Plex Mono",monospace;font-size:80px;font-weight:600;
+  color:rgba(255,255,255,.16);line-height:1;margin-bottom:4px}
+
+/* ---------- statement ---------- */
+.statement{font-family:Archivo,sans-serif;font-size:40px;font-weight:600;line-height:1.24;
+  letter-spacing:-.016em;color:#fff;max-width:24ch;margin:0}
+.attrib{margin-top:26px;font-size:18px;line-height:1.5;color:#A9BBD0;max-width:62ch;
+  font-family:"Source Serif 4",serif}
+
+/* ---------- generic blocks ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:9px;padding:18px 20px}
+.card h4{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;margin:0 0 10px;color:var(--muted)}
+.card.good h4{color:var(--ok)} .card.bad h4{color:var(--accent-ink)}
+.card ul{margin:0;padding-left:18px} .card li{font-size:17px;line-height:1.42;margin-bottom:8px}
+.card li:last-child{margin-bottom:0}
+
+.pull{border-left:4px solid var(--accent);background:var(--accent-soft);
+  padding:16px 22px;border-radius:0 7px 7px 0;margin:6px 0 18px}
+.pull p{margin:0;font-size:20px;color:var(--ink)}
+
+table{border-collapse:collapse;width:100%;font-size:17px}
+th{font-family:Archivo,sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);text-align:left;padding:0 14px 8px 0;
+  border-bottom:2px solid var(--rule-strong)}
+td{padding:9px 14px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.38}
+tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right;padding-right:0;font-family:"IBM Plex Mono",monospace}
+
+pre{font-family:"IBM Plex Mono",monospace;font-size:15.5px;line-height:1.5;
+  background:var(--surface);border:1px solid var(--rule);border-radius:8px;
+  padding:16px 20px;margin:0;overflow:auto;color:var(--ink)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.92em;background:var(--sunk);
+  padding:1px 5px;border-radius:4px}
+
+/* ---------- fragments ---------- */
+.frag{opacity:.12;filter:blur(.4px);transition:opacity .3s,filter .3s,transform .3s}
+.frag.show{opacity:1;filter:none}
+@media (prefers-reduced-motion:reduce){.frag{transition:none}}
+
+/* ---------- interactive: reveal ---------- */
+.reveal-btn{font-family:Archivo,sans-serif;font-size:14px;font-weight:600;
+  background:var(--ink);color:#fff;border:0;border-radius:6px;padding:9px 16px;
+  cursor:pointer;letter-spacing:.02em}
+.reveal-btn:hover{background:var(--accent)}
+.reveal-body{display:none;margin-top:14px}
+.reveal-body.open{display:block;animation:in .25s ease both}
+
+/* ---------- interactive: clickable rows ---------- */
+.exp{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:7px;
+  background:var(--paper)}
+.exp summary{list-style:none;cursor:pointer;padding:11px 16px;display:flex;gap:14px;
+  align-items:center;font-size:17px;background:var(--surface)}
+.exp summary::-webkit-details-marker{display:none}
+.exp summary:hover{background:var(--sunk)}
+.exp[open] summary{background:var(--ink);color:#fff}
+.exp[open] summary .idx{background:var(--accent);color:#fff}
+.exp .idx{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+  background:var(--sunk);color:var(--muted);width:26px;height:26px;border-radius:5px;
+  display:grid;place-items:center;flex:none}
+.exp .ttl{font-family:Archivo,sans-serif;font-weight:600;flex:none;min-width:210px}
+.exp .hint{color:var(--muted);font-size:15.5px}
+.exp[open] summary .hint{color:#B9C4D2}
+.exp .detail{padding:14px 16px 16px 56px;font-size:17px;line-height:1.5}
+.exp .detail .fix{margin-top:9px;padding-left:12px;border-left:3px solid var(--ok);
+  color:var(--ink)}
+
+/* ---------- interactive: boundary chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
+.chip{font-family:Archivo,sans-serif;font-size:16px;font-weight:600;padding:9px 15px;
+  border-radius:7px;border:1.5px solid var(--rule-strong);background:var(--paper);
+  cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--ink)}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.done{border-color:var(--rule);color:var(--faint)}
+#bslot{min-height:132px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:9px;padding:18px 22px}
+#bslot .who{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px}
+#bslot .who.code{color:var(--ok)} #bslot .who.model{color:var(--accent-ink)}
+#bslot .why{font-size:19px;line-height:1.45;margin:0}
+
+/* ---------- interactive: cost calculator ---------- */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.ctl{margin-bottom:15px}
+.ctl label{display:flex;justify-content:space-between;font-family:Archivo,sans-serif;
+  font-size:14px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.ctl label b{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-size:15px}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+.readout{background:var(--slate);border-radius:10px;padding:20px 22px;color:var(--slate-ink)}
+.readout .row{display:flex;justify-content:space-between;align-items:baseline;
+  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.11)}
+.readout .row:last-child{border-bottom:none}
+.readout .lbl{font-family:Archivo,sans-serif;font-size:14px;color:var(--slate-muted)}
+.readout .val{font-family:"IBM Plex Mono",monospace;font-size:23px;font-weight:600;color:#fff}
+.readout .val.big{font-size:31px}
+.readout .val.accent{color:#F0A18A}
+.verdict{margin-top:12px;font-size:16px;line-height:1.45;color:#C3D0E0;font-family:"Source Serif 4",serif}
+
+/* ---------- interactive: layer stack ---------- */
+.stack{display:flex;flex-direction:column-reverse;gap:5px}
+.layer{display:flex;align-items:center;gap:14px;padding:9px 16px;border-radius:7px;
+  background:var(--surface);border:1px solid var(--rule);cursor:pointer;transition:.15s}
+.layer:hover{border-color:var(--rule-strong);transform:translateX(3px)}
+.layer.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.layer.hl{border-color:var(--accent);border-width:2px}
+.layer .no{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--faint);width:16px}
+.layer.active .no{color:#8FA3BC}
+.layer .nm{font-family:Archivo,sans-serif;font-weight:600;font-size:16px;min-width:150px}
+.layer .ds{font-size:15.5px;color:var(--muted)}
+.layer.active .ds{color:#B9C4D2}
+#lslot{margin-top:14px;background:var(--accent-soft);border-left:4px solid var(--accent);
+  border-radius:0 7px 7px 0;padding:14px 18px;font-size:17px;line-height:1.45;min-height:74px}
+#lslot .mod{font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--accent-ink);
+  font-weight:600;display:block;margin-bottom:5px}
+
+/* ---------- references ---------- */
+.refs{display:grid;gap:9px}
+.ref{display:grid;grid-template-columns:112px 1fr;gap:16px;padding:11px 0;
+  border-bottom:1px solid var(--rule);font-size:16.5px;line-height:1.42}
+.ref:last-child{border-bottom:none}
+.ref .tag{font-family:Archivo,sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:#fff;background:var(--muted);border-radius:4px;
+  padding:3px 8px;height:fit-content;text-align:center}
+.ref .tag.paper{background:var(--teal)} .ref .tag.doc{background:var(--gold)}
+.ref .tag.repo{background:var(--accent)} .ref .tag.book{background:var(--slate-2)}
+.ref a{color:var(--accent-ink);word-break:break-word}
+.ref .why{display:block;color:var(--muted);font-size:15px;margin-top:3px}
+
+/* ---------- chrome ---------- */
+#bar{position:fixed;left:0;bottom:0;height:3px;background:var(--accent);z-index:40;
+  transition:width .25s}
+#hud{position:fixed;right:16px;bottom:14px;z-index:40;font-family:Archivo,sans-serif;
+  font-size:13px;color:#8895A6;display:flex;gap:14px;align-items:center}
+#hud kbd{font-family:"IBM Plex Mono",monospace;background:#1A222C;color:#B9C4D2;
+  border-radius:4px;padding:2px 6px;font-size:11.5px}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:42vh;overflow:auto;z-index:50;
+  background:#0E141B;color:#C7D2E0;border-top:2px solid var(--accent);padding:18px 26px;
+  display:none;font-size:15.5px;line-height:1.55}
+#notes.on{display:block}
+#notes h5{font-family:Archivo,sans-serif;font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:#7A8899;margin:0 0 8px}
+#notes b{color:#fff}
+#grid{position:fixed;inset:0;z-index:60;background:#0B0F14;overflow:auto;padding:26px;
+  display:none;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:14px;
+  align-content:start}
+#grid.on{display:grid}
+.thumb{background:var(--paper);border-radius:7px;padding:12px;cursor:pointer;
+  border:2px solid transparent;min-height:104px}
+.thumb:hover,.thumb.cur{border-color:var(--accent)}
+.thumb .tn{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--faint)}
+.thumb .tt{font-family:Archivo,sans-serif;font-size:13.5px;font-weight:600;color:var(--ink);
+  margin-top:5px;line-height:1.28}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* --- per-slide density adjustments -------------------------------------
+   Measured, not guessed: these two slides overflowed the 1280x720 stage by
+   33px and 25px respectively. A slide that overflows is silently cropped on
+   a projector, so the deck self-checks -- see the console helper at the
+   bottom of the script. --------------------------------------------------- */
+.slide.tight p{margin-bottom:10px;font-size:20.5px}
+.slide.tight .rule{margin:9px 0 15px}
+.slide.tight .ctl{margin-bottom:10px}
+.slide.tight .pull{margin:4px 0 0;padding:13px 20px}
+.slide.tight .pull p{font-size:18px}
+.slide.tight table{font-size:16.5px}
+.slide.tight table td{padding:6px 14px 6px 0}
+.slide.tight .sub{margin:-2px 0 12px}
+.slide.tight h2{font-size:34px}
+
+@media print{
+  html,body{overflow:visible;background:#fff;height:auto}
+  #stage{position:static;transform:none!important;width:100%;height:auto;box-shadow:none}
+  .slide{display:flex!important;position:relative;page-break-after:always;
+    height:190mm;animation:none}
+  .frag{opacity:1!important;filter:none!important}
+  .reveal-body{display:block!important}
+  .exp .detail{display:block!important}
+  #bar,#hud,#notes,#grid{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div id="stage" aria-live="polite"></div>
+<div id="bar"></div>
+<div id="hud">
+  <span id="pos" class="mono">1 / 1</span>
+  <span><kbd>←</kbd><kbd>→</kbd> move</span>
+  <span><kbd>S</kbd> notes</span>
+  <span><kbd>O</kbd> overview</span>
+  <span><kbd>F</kbd> full</span>
+</div>
+<div id="notes"><h5>Speaker notes</h5><div id="notesbody"></div></div>
+<div id="grid"></div>
+
+<script>
+/* =====================================================================
+   AI in Practice 2
+   AI in Practice 2 · The Course, End to End
+   Author: Subrat Panda · Plaksha University
+
+   Self-contained. Open in a browser and press F.
+     arrows / space  move      S  speaker notes
+     O  overview grid          F  full screen
+   Run overflowCheck() in the console before presenting.
+
+   Source: instructor/decks/src/T0(.tmpl).js  ·  Rebuild: python instructor/decks/build_html_decks.py
+   ===================================================================== */
+
+const AUTHOR = "Subrat Panda";
+
+/* The course, end to end: the orientation session (about 84 minutes).
+   Every "reference measured" line is from instructor/MEASURED_RESULTS.md. */
+const WEEKS = [{"w": 1, "date": "5 Oct", "arc": "A · Ship it", "theory": "T5 · What breaks between the notebook and production", "labs": [["8", "The model is not the system", "Rebuild the supplied claims model so a clean clone gives byte-identical predictions; find the leak; set the operating point in rupees"], ["9", "Serve it, contain it", "A typed prediction service that never answers 500; a slim, non-root image; latency under load"]], "measured": "The supplied model's AUC 0.997 was a leak: 0.922 honest. The naive image 2.57 GB, the slim one 698 MB."}, {"w": 2, "date": "12 Oct", "arc": "A · Ship it", "theory": "T6 · Engineering with AI coding agents", "labs": [["10", "Build it with an agent", "Spec and acceptance tests first; an agent implements; you review every diff"], ["11", "The skew", "One feature, computed two ways; what it does to the decisions; a shared definition and a test"]], "measured": "Three agents passed the same 15 tests; each had a defect the tests could not see. The skew cut recall at the operating point from 0.724 to 0.609."}, {"w": 3, "date": "19 Oct", "arc": "A · Ship it", "theory": "T7 · Delivery and operations", "labs": [["12", "Ship it continuously", "CI that rebuilds the model and gates on evaluation; a canary against a baseline; a rollback drill"], ["13", "Operate it", "Twelve replayed production months: traces, dashboards, drift and subgroup monitors"]], "measured": "Rollback 6.3–6.7 s against 2 min 10 s for a revert through CI. In production the model cost ≈ ₹575 a claim against ₹500 for reviewing everything."}, {"w": 4, "date": "26 Oct", "arc": "B · Own it", "theory": "T8 · Sovereign AI", "labs": [["14", "Go local", "Open models sized to your laptop; your Module 1 harness, unchanged, on each; quantisation measured"], ["15", "The air-gapped stack", "Aurora with zero external calls, proven with a log; the quality it costs"]], "measured": "A local model within a point of the API on extraction (0.923 vs 0.930). Sealed RAG lost on multi-hop questions (0.300 vs 0.650), and a ':cloud' model leaked through the one allowed door."}, {"w": 5, "date": "2 Nov", "arc": "C · Let it act", "theory": "T9 · Agents and tools", "labs": [["16", "Tools as a standard", "Your domain pack as an MCP server, contract-tested, working from two clients"], ["17", "The domain agent", "The loop by hand, then an SDK; a human before every action; five runs, two models"]], "measured": "59 of 60 calls identical across two clients. Agents: local 0.51, API 0.86 on 50 tasks; on one task the API agent recorded an ineligible patient's referral in 5 of 5 runs while its answer said “cannot be referred”."}, {"w": 6, "date": "9 Nov", "arc": "C → D", "theory": "T10 · From lab to industry", "labs": [["18", "Trust the agent", "Trajectories from the server's trace; multi-tool attacks; a policy gate; local against API"], ["19", "Capstone kickoff", "A client brief; a scoping interview; a signed one-page scope"]], "measured": "A code gate took attacks blocked from 0.88 to 0.99 (local) and 0.71 to 0.94 (API). Tool poisoning still beat the defended API agent 10 times in 25: say which attacks got through in your report."}, {"w": 7, "date": "16 Nov", "arc": "D · Deliver it", "theory": "—", "labs": [["20", "Sprint review", "A working slice from a clean clone; the gate failing on a deliberate break; the client's change request"]], "measured": "The reference slice's first clean clone hit three bugs (a cache, a lint error, a make target that did nothing), and its gate first passed a deliberate break."}, {"w": 8, "date": "23 Nov", "arc": "D · Deliver it", "theory": "—", "labs": [["21", "Demo Day and handover", "Eight minutes, live, to a panel; what it should not be used for; the handover pack"]], "measured": "Deciding in code, the reference slice made 0 ineligible referrals where the agents made 8 and 19 in 110 runs."}];
+
+const SLIDES = [
+
+/* 1 */
+{ t:"Title", cls:"dark", html:`
+  <p class="eyebrow">AI in Practice 2 · Orientation · Week 1</p>
+  <div class="tick"></div>
+  <h1>The Course, End to End</h1>
+  <p style="font-size:24px;max-width:60ch;color:#B6C3D4;margin-top:6px">
+    From a working system to one somebody else can run, own and trust. Eight weeks, fourteen labs, six lectures,
+    one client.</p>
+  <div class="byline">
+    <div><b>${AUTHOR}</b>Plaksha University · MS in Artificial Intelligence</div>
+    <div style="text-align:right">5 October – 27 November 2026<br>
+      <span style="color:#7E94B4">2 credits · 51 contact hours</span></div>
+  </div>`,
+  notes:`About 84 minutes. The goal today: every student can say what they will build each week, how they will be assessed,
+  and what to install before Lab 8.` },
+
+/* 2 */
+{ t:"Why", cls:"dark", html:`
+  <div class="tick" style="margin-top:56px"></div>
+  <p class="statement" style="font-size:38px">In January you walk into a partner company, under an NDA, with a problem nobody has solved.</p>
+  <p class="attrib">This course makes that your second time, not your first. By 27 November every team will have scoped a
+    problem with a client, built it to a production standard, operated it, and handed it over.</p>`,
+  notes:`0–8 min. Ask: what do you think a partner will expect in week 2? Collect three answers; return to them at the end.` },
+
+/* 3 */
+{ t:"Where this sits", html:`
+  <h2>Where this course sits</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th>Course</th><th>What it gives you</th><th>This course</th></tr>
+    <tr><td>MLEF</td><td>the machine-learning lifecycle</td><td>assumes it: you receive a trained model</td></tr>
+    <tr><td>LLM lecture course</td><td>how language models work</td><td>assumes it</td></tr>
+    <tr><td>AI in Practice 1</td><td>a measured GenAI application, Aurora</td><td>the starting point</td></tr>
+    <tr><td><b>AI in Practice 2</b></td><td colspan="2"><b>one real system through a container, a second machine, a month of traffic, the network cable pulled, and a client</b></td></tr>
+  </table>`,
+  notes:`8–12 min. The overlap statement from the syllabus, in one table.` },
+
+/* 4 */
+{ t:"The spine", html:`
+  <h2>Aurora Health, continued</h2>
+  <p class="sub">The insurer you already know. Module 1 built what reads and answers; this course adds what decides.</p>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div class="card"><h4>What you already have</h4><ul>
+      <li>the policy corpus, the support tickets, the golden sets</li>
+      <li>Module 1's evaluation harness</li>
+      <li>the reference Aurora service, if yours is incomplete: nobody is blocked</li></ul></div>
+    <div class="card"><h4>What is new</h4><ul>
+      <li>a claims-triage model, and 45,365 synthetic claims over 24 months</li>
+      <li>five domain packs for the agents (insurance, healthcare, legal, finance, agritech)</li>
+      <li>nine client briefs for the capstone</li></ul></div>
+  </div>
+  <div class="pull frag" style="margin-top:14px"><p>Module 1's harness is this course's safety net: nothing is done until those numbers say it did not get worse.</p></div>`,
+  notes:`12–20 min.` },
+
+/* 5 */
+{ t:"Six traps", html:`
+  <h2>The claims data has six traps. Each is a lab.</h2>
+  <div class="rule"></div>
+  <table style="font-size:16px">
+    <tr><th>Trap</th><th>Measured</th><th>Lab</th></tr>
+    <tr><td>a column known only after the decision (leakage)</td><td>AUC 0.997 with it, 0.922 without</td><td class="n">8</td></tr>
+    <tr><td>class imbalance</td><td>14.3% rejected: "approve everything" scores 0.857 accuracy</td><td class="n">8</td></tr>
+    <tr><td>unequal costs of the two errors</td><td>197 : 1</td><td class="n">9</td></tr>
+    <tr><td>a feature computed two ways (skew)</td><td>recall at the operating point 0.724 → 0.609</td><td class="n">11</td></tr>
+    <tr><td>a policy rule change (drift)</td><td>at month 14</td><td class="n">13</td></tr>
+    <tr><td>a gap for Hinglish claims</td><td>recall 0.702 vs 0.579: 12.3 points</td><td class="n">13</td></tr>
+  </table>`,
+  notes:`Do not solve them now. Tell students the traps exist and that finding them with evidence is the job.` },
+
+/* 6 */
+{ t:"Four arcs", cls:"dark", html:`
+  <p class="secnum mono">A–D</p>
+  <h2 style="font-size:40px">Four arcs, four questions</h2>
+  <table style="color:#C3D0E0;font-size:19px;margin-top:10px">
+    <tr><td style="color:#fff"><b>A · Ship it</b></td><td>weeks 1–3</td><td>Can a stranger clone it, run it, deploy it and watch it?</td></tr>
+    <tr><td style="color:#fff"><b>B · Own it</b></td><td>week 4</td><td>Can it run with the network cable pulled?</td></tr>
+    <tr><td style="color:#fff"><b>C · Let it act</b></td><td>weeks 5–6</td><td>Can it take multi-step action in any domain, safely and measurably?</td></tr>
+    <tr><td style="color:#fff"><b>D · Deliver it</b></td><td>weeks 6–8</td><td>Can a team take a client's problem to a handover?</td></tr>
+  </table>`,
+  notes:`20–22 min. Then walk the weeks on the next slide.` },
+
+/* 7 */
+{ t:"Week by week", cls:"tight", html:`
+  <h2>Eight weeks: what you build, what you must prove</h2>
+  <p class="sub">click a week</p>
+  <div class="rule"></div>
+  <div class="chips" id="weeks"></div>
+  <div id="weekslot" class="card" style="min-height:300px"></div>`,
+  notes:`22–50 min, the heart of the session: about three minutes a week. For each, say the one measured result aloud:
+  it tells students the course is not hypothetical.` },
+
+/* 8 */
+{ t:"Arc A", html:`
+  <p class="secnum mono" style="color:var(--accent)">A</p>
+  <h2>Ship it: weeks 1–3</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div class="card"><h4>You will</h4><ul>
+      <li>rebuild a model so a clean clone gives identical predictions</li>
+      <li>serve it under a contract, in a container</li>
+      <li>build a service with a coding agent, and review it</li>
+      <li>find and fix a training–serving skew</li>
+      <li>ship through CI with a gate, a canary, a rollback</li>
+      <li>replay a year of production and watch it drift</li></ul></div>
+    <div class="card"><h4>The reference found</h4><ul>
+      <li>the honest model is worth less than it looked (0.997 → 0.922)</li>
+      <li>green tests are not the same as right (3 agents, 3 hidden defects)</li>
+      <li>rollback in seconds, revert in minutes</li>
+      <li>in production, the right answer was to switch automation off, not retrain</li></ul></div>
+  </div>`,
+  notes:`Honest negative results score full marks: the Lab 13 finding is the example.` },
+
+/* 9 */
+{ t:"Arc B", html:`
+  <p class="secnum mono" style="color:var(--accent)">B</p>
+  <h2>Own it: week 4</h2>
+  <div class="rule"></div>
+  <p>Most partners will not let customer data leave the building. So you will run models on your laptop, measure what that
+    costs, and prove, with a log, that nothing leaves.</p>
+  <div class="grid3">
+    <div class="card"><h4>Quality</h4><p class="small" style="margin:0">Extraction: local 0.923, API 0.930. Multi-hop RAG: local 0.300, API 0.650.</p></div>
+    <div class="card"><h4>Proof</h4><p class="small" style="margin:0">An egress log caught a library phoning home, and a ':cloud' model leaving through the allowed door.</p></div>
+    <div class="card"><h4>Hardware</h4><p class="small" style="margin:0">16 GB recommended; an 8 GB path with smaller models. 10–30 GB of downloads, at home.</p></div>
+  </div>`,
+  notes:`Warn now: week 4 needs 10–30 GB of model downloads (by RAM), done at home, not on campus Wi-Fi.` },
+
+/* 10 */
+{ t:"Arc C", html:`
+  <p class="secnum mono" style="color:var(--accent)">C</p>
+  <h2>Let it act: weeks 5–6</h2>
+  <div class="rule"></div>
+  <p>Each team takes one domain pack: <b>insurance, healthcare, legal, finance or agritech</b>. Tools as an MCP server; an agent on top;
+    a human before every action; then you attack it.</p>
+  <div class="grid2">
+    <div class="card"><h4>Measured by the reference</h4><ul>
+      <li>agents: local 0.51, API 0.86 on 50 tasks, 5 runs each</li>
+      <li>the API agent acted when it should not in 16 of 250 runs</li>
+      <li>a code gate blocked 0.99 of attacks on the local model</li></ul></div>
+    <div class="card"><h4>What it teaches</h4><ul>
+      <li>success, cost and variance, always together</li>
+      <li>the ledger, not the agent's words</li>
+      <li>defend the action, not the prompt</li></ul></div>
+  </div>`,
+  notes:`Teams choose packs before Lab 16 (at most two teams per pack).` },
+
+/* 11 */
+{ t:"Arc D", html:`
+  <p class="secnum mono" style="color:var(--accent)">D</p>
+  <h2>Deliver it: the capstone, weeks 6–8</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th>Week</th><th>Session</th><th>What happens</th></tr>
+    <tr><td>6</td><td>Lab 19 · Kickoff</td><td>a client brief; a 12-minute interview; a signed one-page scope</td></tr>
+    <tr><td>7</td><td>Lab 20 · Sprint review</td><td>a working slice from a clean clone; the client asks for a change</td></tr>
+    <tr><td>8</td><td>Lab 21 · Demo Day</td><td>eight minutes, live, to a panel; the handover pack</td></tr>
+  </table>
+  <p class="frag" style="margin-top:14px">Nine briefs, each built on data you already have, each with a measured baseline. Six forbid the data leaving the premises.</p>`,
+  notes:`Briefs are assigned mid-way (before T10). Some may be sanitised problems from actual Immersion partners.` },
+
+/* 12 */
+{ t:"Demo Day", html:`
+  <h2>Demo Day: eight minutes</h2>
+  <div class="rule"></div>
+  <table style="font-size:17px">
+    <tr><td class="n">30 s</td><td>the problem, as the client stated it</td></tr>
+    <tr><td class="n">1 min 30 s</td><td>the system, running</td></tr>
+    <tr><td class="n">2 min</td><td>a case it gets right and one it gets wrong, and why</td></tr>
+    <tr><td class="n">1 min</td><td>metrics, live</td></tr>
+    <tr><td class="n">1 min</td><td>the gate failing on a deliberate break</td></tr>
+    <tr><td class="n">1 min</td><td><b>what you would not deploy this for</b> (graded)</td></tr>
+    <tr><td class="n">1 min</td><td>questions</td></tr>
+  </table>`,
+  notes:`50–54 min. Point at the graded segment: honesty about limits is assessed.` },
+
+/* 13 */
+{ t:"How we work", html:`
+  <h2>How every week works</h2>
+  <div class="rule"></div>
+  <div class="grid3">
+    <div class="card"><h4>Before</h4><p class="small" style="margin:0">Read the lab's OVERVIEW and START_HERE; do the setup at home; skim the lecture notes.</p></div>
+    <div class="card"><h4>The lab</h4><p class="small" style="margin:0"><b>A 20-minute briefing</b> (the data, how the code fits, the assignment), then three hours with the RUNSHEET.</p></div>
+    <div class="card"><h4>After</h4><p class="small" style="margin:0">A short quiz (15–20 questions); the tagged commit with evidence, report and contributions.</p></div>
+  </div>
+  <table style="margin-top:18px;font-size:16px">
+    <tr><th>Every lab has</th><th>For</th></tr>
+    <tr><td>OVERVIEW · README · RUNSHEET</td><td>why · the brief and rubric · the actions</td></tr>
+    <tr><td>CONCEPTS · CODE_GUIDE · START_HERE</td><td>the reference · provided vs yours · before you sit down</td></tr>
+  </table>`,
+  notes:`54–62 min.` },
+
+/* 14 */
+{ t:"The container", html:`
+  <h2>One course container, on every laptop</h2>
+  <div class="rule"></div>
+  <p>Everything runs in the same container on macOS, Windows and Linux, on ARM and x86: the reference produced identical Lab 8
+    results on both architectures. The one exception: local language models run natively on your laptop (week 4 onward).</p>
+  <div class="grid2">
+    <div class="card"><h4>Install before Lab 8</h4><ul>
+      <li>Docker Desktop, running</li><li>Git, and a GitHub account</li><li>the Week 1 zip, then <code>make up</code></li></ul></div>
+    <div class="card"><h4>Later</h4><ul>
+      <li>week 4: Ollama and your models (at home); your Gemini key from Module 1, for the API comparison</li><li>week 5: your team's domain pack</li><li>week 6: your capstone repository</li></ul></div>
+  </div>`,
+  notes:`Show START_HERE.md from the Week 1 zip on screen.` },
+
+/* 15 */
+{ t:"Coding agents", html:`
+  <h2>AI coding agents: taught, then used</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><td><b>Labs 8–9</b></td><td>by hand: they are the baseline the agent lab measures against</td></tr>
+    <tr><td><b>Lab 10</b></td><td>spec and acceptance tests first; an agent implements; you review every diff</td></tr>
+    <tr><td><b>From Lab 11</b></td><td>allowed everywhere, with a log of what the agent wrote</td></tr>
+    <tr><td><b>Always</b></td><td>you must explain and defend any line you submit, live</td></tr>
+  </table>`,
+  notes:`Fabricating a measurement, or submitting one your code did not produce, scores zero.` },
+
+/* 16 */
+{ t:"Assessment", html:`
+  <h2>Assessment</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <table>
+      <tr><th>Component</th><th class="n">Weight</th></tr>
+      <tr><td>Labs 8–18 (4% each)</td><td class="n">44%</td></tr>
+      <tr><td>Capstone scoping document</td><td class="n">6%</td></tr>
+      <tr><td>Capstone system</td><td class="n">20%</td></tr>
+      <tr><td>Capstone report and Demo Day</td><td class="n">20%</td></tr>
+      <tr><td>Engineering practice</td><td class="n">10%</td></tr>
+    </table>
+    <div>
+      <div class="pull"><p><b>No number, no claim.</b></p></div>
+      <p class="small">Honest negative results score full marks. Fabricated numbers score zero. Teams of three, fixed for the
+        course; a signed contribution statement with every deliverable, checked against the commit history.</p>
+    </div>
+  </div>`,
+  notes:`62–72 min. Read the principle aloud. Ask a student to restate it.` },
+
+/* 17 */
+{ t:"What you walk out with", html:`
+  <h2>What you walk out with</h2>
+  <div class="rule"></div>
+  <ul style="font-size:20px;line-height:1.55">
+    <li>a trained model in production: versioned, containerised, CI/CD'd, deployed, observed, drift-gated</li>
+    <li>the whole stack running fully offline on open models, with its measured quality cost</li>
+    <li>an MCP server and an evaluated, attacked, defended domain agent</li>
+    <li>a team project delivered to a client brief, with a handover pack</li>
+    <li>a measured way of working with AI coding agents</li>
+  </ul>`,
+  notes:`Tie back to slide 2: this is what makes January the second time.` },
+
+/* 18 */
+{ t:"Before Lab 8", html:`
+  <h2>Before Lab 8</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div class="card"><h4>Do</h4><ul>
+      <li>install Docker Desktop and Git; <code>make up</code> from the Week 1 zip</li>
+      <li>form your team of three (fixed for the course)</li>
+      <li>read Lab 8's OVERVIEW and START_HERE, and <code>docs/THE_STORY.md</code></li>
+      <li>new to git, DVC or Docker? the primers in <code>docs/toolkit/</code></li>
+      <li>skim T5's notes</li></ul></div>
+    <div class="card"><h4>Bring</h4><ul>
+      <li>a charged laptop with the container built</li>
+      <li>your Module 1 repository (or use the reference)</li>
+      <li>questions for the Lab 8 briefing</li></ul></div>
+  </div>`,
+  notes:`72–80 min.` },
+
+/* 19 */
+{ t:"Questions", cls:"dark", html:`
+  <div class="tick" style="margin-top:80px"></div>
+  <p class="statement" style="font-size:40px">Questions</p>
+  <p class="attrib">Then: go back to the three answers from the start. What will a partner expect in week 2 of January?</p>`,
+  notes:`80–84 min.` },
+
+];
+
+function mountAll(){ mountWeeks(); }
+
+function mountWeeks(){
+  const box=document.getElementById('weeks'), slot=document.getElementById('weekslot'); if(!box) return;
+  box.innerHTML=WEEKS.map((w,n)=>`<span class="chip" data-n="${n}">Week ${w.w} · ${w.date}</span>`).join('');
+  const show=n=>{ const w=WEEKS[n];
+    box.querySelectorAll('.chip').forEach((c,i)=>c.classList.toggle('active',i===n));
+    slot.innerHTML=`<p class="small" style="margin:0 0 8px"><b>${w.arc}</b> · theory: ${w.theory}</p>
+      <table style="font-size:16px">${w.labs.map(l=>`<tr><td style="width:70px"><b>Lab ${l[0]}</b></td><td style="width:230px"><b>${l[1]}</b></td><td>${l[2]}</td></tr>`).join('')}</table>
+      <div class="pull" style="margin-top:12px"><p style="font-size:17px"><b>The reference measured:</b> ${w.measured}</p></div>`; };
+  box.querySelectorAll('.chip').forEach(c=>c.onclick=()=>show(+c.dataset.n));
+  show(0);
+}
+
+/* ===================== engine ======================================= */
+const stage=document.getElementById('stage'), bar=document.getElementById('bar'),
+      pos=document.getElementById('pos'), notes=document.getElementById('notes'),
+      notesBody=document.getElementById('notesbody'), grid=document.getElementById('grid');
+let i=0, frag=0, fragEls=[];
+
+function fit(){
+  const s=Math.min(innerWidth/1280, innerHeight/720)*0.94;
+  stage.style.transform=`translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize',fit);
+
+function build(){
+  stage.innerHTML = SLIDES.map((s,n)=>
+    `<section class="slide ${s.cls||''}" data-n="${n}">${s.html}</section>`).join('');
+  grid.innerHTML = SLIDES.map((s,n)=>
+    `<div class="thumb" data-go="${n}"><div class="tn">${String(n+1).padStart(2,'0')}</div>
+     <div class="tt">${s.t}</div></div>`).join('');
+  grid.querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>{go(+el.dataset.go);toggleGrid(false);});
+  mountReveals(); if (typeof mountAll === 'function') mountAll();
+}
+
+function go(n,f){
+  i=Math.max(0,Math.min(SLIDES.length-1,n));
+  stage.querySelectorAll('.slide').forEach(el=>el.classList.toggle('on',+el.dataset.n===i));
+  const cur=stage.querySelector('.slide.on');
+  fragEls=[...cur.querySelectorAll('.frag')];
+  frag = f==='end' ? fragEls.length : 0;
+  paint();
+  notesBody.innerHTML = SLIDES[i].notes || '<i style="color:#66738a">No notes for this slide.</i>';
+  pos.textContent=`${i+1} / ${SLIDES.length}`;
+  bar.style.width=`${((i+1)/SLIDES.length)*100}%`;
+  grid.querySelectorAll('.thumb').forEach((t,n)=>t.classList.toggle('cur',n===i));
+  location.hash=i+1;
+}
+function paint(){ fragEls.forEach((el,n)=>el.classList.toggle('show',n<frag)); }
+function next(){ if(frag<fragEls.length){frag++;paint();} else if(i<SLIDES.length-1) go(i+1); }
+function prev(){ if(frag>0){frag--;paint();} else if(i>0) go(i-1,'end'); }
+function toggleGrid(on){ grid.classList.toggle('on', on===undefined?!grid.classList.contains('on'):on); }
+
+addEventListener('keydown',e=>{
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const k=e.key.toLowerCase();
+  if(k==='arrowright'||k===' '||k==='pagedown'){e.preventDefault();next();}
+  else if(k==='arrowleft'||k==='pageup'){e.preventDefault();prev();}
+  else if(k==='home')go(0); else if(k==='end')go(SLIDES.length-1);
+  else if(k==='s'){notes.classList.toggle('on');}
+  else if(k==='o'){toggleGrid();}
+  else if(k==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+  else if(k==='escape'){toggleGrid(false);notes.classList.remove('on');}
+});
+
+
+/* Generic: any <button data-reveal="id"> toggles <div id="id" class="reveal-body">. */
+function mountReveals(){
+  document.querySelectorAll('[data-reveal]').forEach(btn=>btn.onclick=()=>{
+    const body=document.getElementById(btn.dataset.reveal);
+    body.classList.toggle('open');
+    btn.textContent = body.classList.contains('open') ? 'Hide the answer' : 'Reveal the answer';
+  });
+}
+
+/* Generic: expandable rows. Each item {n,t,s,d,fix}. */
+function expList(items){
+  return items.map(f=>`
+    <div class="exp"><details><summary>
+      <span class="idx">${f.n}</span><span class="ttl">${f.t}</span>
+      <span class="hint">${f.s}</span></summary>
+      <div class="detail">${f.d}${f.fix?`<div class="fix"><b>${f.fixLabel||'Response'}:</b> ${f.fix}</div>`:''}</div>
+    </details></div>`).join('');
+}
+
+/* Generic: hidden-answer question list. Each item {q,a}. */
+function quizList(items){
+  return items.map((q,n)=>`
+    <div class="exp"><details><summary>
+      <span class="idx">${n+1}</span><span class="hint" style="color:var(--ink)">${q.q}</span>
+      </summary><div class="detail" style="padding-left:56px">${q.a}</div></details></div>`).join('');
+}
+
+/* Author helper: run overflowCheck() in the console before presenting.
+   A slide that overflows the 1280x720 stage is cropped on a projector and you
+   will not notice until you are standing in front of the room. */
+window.overflowCheck=()=>{
+  const bad=[];
+  document.querySelectorAll('.slide').forEach((el,n)=>{
+    const was=el.classList.contains('on'); el.classList.add('on');
+    const over=el.scrollHeight-el.clientHeight;
+    if(over>2) bad.push(`slide ${n+1} "${SLIDES[n].t}" overflows by ${over}px`);
+    if(!was) el.classList.remove('on');
+  });
+  console.log(bad.length?bad.join('\n'):'All slides fit the stage.');
+  return bad;
+};
+
+build(); fit();
+go(location.hash ? Math.max(0,parseInt(location.hash.slice(1),10)-1) : 0);
+</script>
+</body>
+</html>

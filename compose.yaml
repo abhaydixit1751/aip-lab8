@@ -1,0 +1,56 @@
+# AI in Practice 2 — the course environment.
+#
+#   make up        build the image (first time ~2 min) and start it
+#   make shell     open a terminal inside it
+#   make check     verify everything, including the host's Ollama
+#   make down      stop it
+#
+# Or open this folder in VS Code / Cursor and choose "Reopen in Container".
+
+name: aip2
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    image: aip2-dev:latest
+    init: true
+    stdin_open: true
+    tty: true
+    command: sleep infinity
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      # Docker-outside-of-Docker: `docker build` inside the container uses the
+      # host's Docker engine. Images you build appear on your machine.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # The student's home survives `make down` / `make rebuild`: git identity,
+      # shell history, tool caches. Without it, `git commit` inside the container
+      # fails after every restart with "Please tell me who you are".
+      - home:/home/student
+    # Who may use the Docker socket. Measured on Docker Desktop (macOS and
+    # Windows): inside a container the socket is root:root 0660, so the student
+    # user needs group 0 -- hence the default. On native Linux the socket
+    # belongs to the host's `docker` group; `make up` detects its gid, or set
+    # DOCKER_GID in .env. Note the socket itself is the real privilege: it
+    # already grants root-equivalent control of the host's Docker engine.
+    group_add:
+      - "${DOCKER_GID:-0}"
+    extra_hosts:
+      # Built in on Docker Desktop; needed explicitly on Linux.
+      - "host.docker.internal:host-gateway"
+    environment:
+      OLLAMA_HOST: "${OLLAMA_HOST:-http://host.docker.internal:11434}"
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      # Course services use the 18xxx range. 8000/8080/5000 are the most
+      # crowded ports in development -- the reference machine already had
+      # unrelated projects on all three.
+      - "${MLFLOW_PORT:-18500}:18500"   # MLflow UI (Lab 8)
+      - "${API_PORT:-18000}:18000"      # FastAPI dev server + /docs (Lab 9)
+
+volumes:
+  home:

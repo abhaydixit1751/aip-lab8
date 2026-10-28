@@ -1,0 +1,21 @@
+<svg viewBox="0 0 1000 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lab 13 at a glance" >
+    <rect x="0" y="6" width="8" height="52" rx="3" fill="#1D5E5C"/>
+    <text x="22" y="28" font-family="Archivo,Helvetica,sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#626A78">LAB 13 · ARC A</text>
+    <text x="22" y="56" font-family="Archivo,Helvetica,sans-serif" font-size="28" font-weight="700" fill="#14161B">Operate it</text>
+    <text x="1000" y="50" text-anchor="end" font-family="Source Serif 4,Georgia,serif" font-size="21" font-style="italic" fill="#2B303A">“Green dashboards. Still right?”</text>
+    <rect x="0" y="78" width="290" height="150" rx="14" fill="#F1F3F6" stroke="#626A78" stroke-width="2"/>
+      <g transform="translate(18,96)" fill="none" stroke="#626A78" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="22" r="17"/><path d="M22 12v10l7 5"/></g>
+      <text x="74" y="112" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.6" fill="#626A78">GIVEN</text>
+      <text x="20" y="166" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">A year of claims,</text><text x="20" y="192" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">replayed</text>
+    <path d="M300 153h30M320 143l10 10-10 10" fill="none" stroke="#626A78" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="342" y="78" width="290" height="150" rx="14" fill="#DCEBE8" stroke="#1D5E5C" stroke-width="2"/>
+      <g transform="translate(360,96)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 39h35"/><rect x="9" y="24" width="6" height="15"/><rect x="19" y="14" width="6" height="25"/><rect x="29" y="6" width="6" height="33"/></g>
+      <text x="416" y="112" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.6" fill="#626A78">YOU BUILD</text>
+      <text x="362" y="166" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">Traces, dashboards,</text><text x="362" y="192" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">monitors</text>
+    <path d="M642 153h30M662 143l10 10-10 10" fill="none" stroke="#626A78" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="684" y="78" width="316" height="150" rx="14" fill="#F7E7E1" stroke="#AE4224" stroke-width="2"/>
+    <text x="706" y="112" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.6" fill="#626A78">YOU PROVE</text>
+    <text x="706" y="166" font-family="Archivo,Helvetica,sans-serif" font-size="42" font-weight="800" fill="#AE4224">₹575 &gt; ₹500</text>
+    <text x="706" y="196" font-family="Source Serif 4,Georgia,serif" font-size="18" fill="#2B303A">per claim: switch it off</text>
+    <text x="0" y="262" font-family="IBM Plex Mono,Menlo,monospace" font-size="15" fill="#626A78">OpenTelemetry  ·  Prometheus  ·  Grafana</text>
+  </svg>

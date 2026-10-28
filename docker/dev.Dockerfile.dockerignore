@@ -1,0 +1,5 @@
+# The course image needs only the lockfile and the pip notice.
+*
+!pyproject.toml
+!uv.lock
+!docker/bin/pip

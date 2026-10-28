@@ -1,0 +1,15 @@
+#!/bin/sh
+# The course environment is locked on purpose. See docker/dev.Dockerfile.
+cat >&2 <<'MSG'
+pip is disabled in the course container.
+
+The environment is identical on all 27 laptops because it is built from
+uv.lock. A pip install here would make yours differ -- and it would not even
+work: it would install into a Python the course environment never uses.
+
+To add a package:
+  1. add it to pyproject.toml (or ask on the course channel)
+  2. uv lock
+  3. make rebuild
+MSG
+exit 1

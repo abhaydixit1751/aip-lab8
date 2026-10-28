@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Subrat Panda">
+<meta name="description" content="AI in Practice 2, Theory 5 -- reproducibility as a testable property, versioning code, data and experiments, the operating point in rupees, the serving contract, and what a container guarantees.">
+<title>T5 · What Breaks Between the Notebook and Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#FCFCFD; --surface:#F1F3F6; --sunk:#E7EAEF;
+  --ink:#14161B; --body:#2B303A; --muted:#626A78; --faint:#8A929F;
+  --rule:#DCE0E7; --rule-strong:#BFC5D0;
+  --slate:#16212E; --slate-2:#1E2C3D; --slate-ink:#E9EDF3; --slate-muted:#8FA3BC;
+  --accent:#AE4224; --accent-ink:#8E3520; --accent-soft:#F7E7E1;
+  --teal:#1D5E5C; --teal-soft:#DCEBE8;
+  --gold:#8A6A16; --gold-soft:#F6EEDA;
+  --ok:#1F6B45; --ok-soft:#DFF0E6;
+  --shadow:0 1px 2px rgba(20,22,27,.06), 0 18px 44px -28px rgba(20,22,27,.4);
+  --stage-w:1280px; --stage-h:720px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#0B0F14}
+body{font-family:"Source Serif 4",Georgia,serif;color:var(--body);-webkit-font-smoothing:antialiased}
+.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- stage ---------- */
+#stage{position:absolute;top:50%;left:50%;width:var(--stage-w);height:var(--stage-h);
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.slide{position:absolute;inset:0;padding:56px 72px;display:none;flex-direction:column;
+  background:var(--paper);animation:in .28s ease both}
+.slide.on{display:flex}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide{animation:none}}
+
+/* ---------- typography ---------- */
+h1{font-family:Archivo,sans-serif;font-size:56px;font-weight:700;line-height:1.03;
+  letter-spacing:-.025em;margin:0 0 16px;color:#fff;text-wrap:balance}
+h2{font-family:Archivo,sans-serif;font-size:38px;font-weight:600;letter-spacing:-.018em;
+  margin:0 0 6px;color:var(--ink);line-height:1.12;text-wrap:balance}
+h3{font-family:Archivo,sans-serif;font-size:15px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+p{margin:0 0 15px;font-size:22px;line-height:1.5;max-width:64ch}
+.sub{font-size:19px;color:var(--accent-ink);font-weight:600;font-family:Archivo,sans-serif;
+  margin:-2px 0 20px}
+.rule{height:2px;background:var(--ink);margin:14px 0 26px;flex:none}
+.small{font-size:17px;line-height:1.45;color:var(--muted)}
+.tiny{font-size:14.5px;line-height:1.45;color:var(--faint)}
+b,strong{font-weight:600;color:var(--ink)}
+em{font-style:italic}
+.body-scroll{overflow-y:auto;flex:1;min-height:0;padding-right:6px}
+
+/* ---------- title & section slides ---------- */
+.dark{background:var(--slate);color:var(--slate-ink)}
+.dark h2{color:#fff}.dark p{color:#C3D0E0}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--slate-muted);margin:0 0 26px}
+.tick{width:74px;height:5px;background:var(--accent);margin:0 0 30px;border-radius:2px}
+.byline{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;
+  border-top:1px solid rgba(255,255,255,.14);padding-top:18px;
+  font-family:Archivo,sans-serif;font-size:15px;color:var(--slate-muted)}
+.byline b{color:#fff;font-weight:600;display:block;font-size:17px}
+.secnum{font-family:"IBM Plex Mono",monospace;font-size:80px;font-weight:600;
+  color:rgba(255,255,255,.16);line-height:1;margin-bottom:4px}
+
+/* ---------- statement ---------- */
+.statement{font-family:Archivo,sans-serif;font-size:40px;font-weight:600;line-height:1.24;
+  letter-spacing:-.016em;color:#fff;max-width:24ch;margin:0}
+.attrib{margin-top:26px;font-size:18px;line-height:1.5;color:#A9BBD0;max-width:62ch;
+  font-family:"Source Serif 4",serif}
+
+/* ---------- generic blocks ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:9px;padding:18px 20px}
+.card h4{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;margin:0 0 10px;color:var(--muted)}
+.card.good h4{color:var(--ok)} .card.bad h4{color:var(--accent-ink)}
+.card ul{margin:0;padding-left:18px} .card li{font-size:17px;line-height:1.42;margin-bottom:8px}
+.card li:last-child{margin-bottom:0}
+
+.pull{border-left:4px solid var(--accent);background:var(--accent-soft);
+  padding:16px 22px;border-radius:0 7px 7px 0;margin:6px 0 18px}
+.pull p{margin:0;font-size:20px;color:var(--ink)}
+
+table{border-collapse:collapse;width:100%;font-size:17px}
+th{font-family:Archivo,sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);text-align:left;padding:0 14px 8px 0;
+  border-bottom:2px solid var(--rule-strong)}
+td{padding:9px 14px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.38}
+tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right;padding-right:0;font-family:"IBM Plex Mono",monospace}
+
+pre{font-family:"IBM Plex Mono",monospace;font-size:15.5px;line-height:1.5;
+  background:var(--surface);border:1px solid var(--rule);border-radius:8px;
+  padding:16px 20px;margin:0;overflow:auto;color:var(--ink)}
+code{font-family:"IBM Plex Mono",monospace;font-size:.92em;background:var(--sunk);
+  padding:1px 5px;border-radius:4px}
+
+/* ---------- fragments ---------- */
+.frag{opacity:.12;filter:blur(.4px);transition:opacity .3s,filter .3s,transform .3s}
+.frag.show{opacity:1;filter:none}
+@media (prefers-reduced-motion:reduce){.frag{transition:none}}
+
+/* ---------- interactive: reveal ---------- */
+.reveal-btn{font-family:Archivo,sans-serif;font-size:14px;font-weight:600;
+  background:var(--ink);color:#fff;border:0;border-radius:6px;padding:9px 16px;
+  cursor:pointer;letter-spacing:.02em}
+.reveal-btn:hover{background:var(--accent)}
+.reveal-body{display:none;margin-top:14px}
+.reveal-body.open{display:block;animation:in .25s ease both}
+
+/* ---------- interactive: clickable rows ---------- */
+.exp{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:7px;
+  background:var(--paper)}
+.exp summary{list-style:none;cursor:pointer;padding:11px 16px;display:flex;gap:14px;
+  align-items:center;font-size:17px;background:var(--surface)}
+.exp summary::-webkit-details-marker{display:none}
+.exp summary:hover{background:var(--sunk)}
+.exp[open] summary{background:var(--ink);color:#fff}
+.exp[open] summary .idx{background:var(--accent);color:#fff}
+.exp .idx{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+  background:var(--sunk);color:var(--muted);width:26px;height:26px;border-radius:5px;
+  display:grid;place-items:center;flex:none}
+.exp .ttl{font-family:Archivo,sans-serif;font-weight:600;flex:none;min-width:210px}
+.exp .hint{color:var(--muted);font-size:15.5px}
+.exp[open] summary .hint{color:#B9C4D2}
+.exp .detail{padding:14px 16px 16px 56px;font-size:17px;line-height:1.5}
+.exp .detail .fix{margin-top:9px;padding-left:12px;border-left:3px solid var(--ok);
+  color:var(--ink)}
+
+/* ---------- interactive: boundary chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
+.chip{font-family:Archivo,sans-serif;font-size:16px;font-weight:600;padding:9px 15px;
+  border-radius:7px;border:1.5px solid var(--rule-strong);background:var(--paper);
+  cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--ink)}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.done{border-color:var(--rule);color:var(--faint)}
+#bslot{min-height:132px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:9px;padding:18px 22px}
+#bslot .who{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px}
+#bslot .who.code{color:var(--ok)} #bslot .who.model{color:var(--accent-ink)}
+#bslot .why{font-size:19px;line-height:1.45;margin:0}
+
+/* ---------- interactive: cost calculator ---------- */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.ctl{margin-bottom:15px}
+.ctl label{display:flex;justify-content:space-between;font-family:Archivo,sans-serif;
+  font-size:14px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.ctl label b{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-size:15px}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+.readout{background:var(--slate);border-radius:10px;padding:20px 22px;color:var(--slate-ink)}
+.readout .row{display:flex;justify-content:space-between;align-items:baseline;
+  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.11)}
+.readout .row:last-child{border-bottom:none}
+.readout .lbl{font-family:Archivo,sans-serif;font-size:14px;color:var(--slate-muted)}
+.readout .val{font-family:"IBM Plex Mono",monospace;font-size:23px;font-weight:600;color:#fff}
+.readout .val.big{font-size:31px}
+.readout .val.accent{color:#F0A18A}
+.verdict{margin-top:12px;font-size:16px;line-height:1.45;color:#C3D0E0;font-family:"Source Serif 4",serif}
+
+/* ---------- interactive: layer stack ---------- */
+.stack{display:flex;flex-direction:column-reverse;gap:5px}
+.layer{display:flex;align-items:center;gap:14px;padding:9px 16px;border-radius:7px;
+  background:var(--surface);border:1px solid var(--rule);cursor:pointer;transition:.15s}
+.layer:hover{border-color:var(--rule-strong);transform:translateX(3px)}
+.layer.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.layer.hl{border-color:var(--accent);border-width:2px}
+.layer .no{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--faint);width:16px}
+.layer.active .no{color:#8FA3BC}
+.layer .nm{font-family:Archivo,sans-serif;font-weight:600;font-size:16px;min-width:150px}
+.layer .ds{font-size:15.5px;color:var(--muted)}
+.layer.active .ds{color:#B9C4D2}
+#lslot{margin-top:14px;background:var(--accent-soft);border-left:4px solid var(--accent);
+  border-radius:0 7px 7px 0;padding:14px 18px;font-size:17px;line-height:1.45;min-height:74px}
+#lslot .mod{font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--accent-ink);
+  font-weight:600;display:block;margin-bottom:5px}
+
+/* ---------- references ---------- */
+.refs{display:grid;gap:9px}
+.ref{display:grid;grid-template-columns:112px 1fr;gap:16px;padding:11px 0;
+  border-bottom:1px solid var(--rule);font-size:16.5px;line-height:1.42}
+.ref:last-child{border-bottom:none}
+.ref .tag{font-family:Archivo,sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:#fff;background:var(--muted);border-radius:4px;
+  padding:3px 8px;height:fit-content;text-align:center}
+.ref .tag.paper{background:var(--teal)} .ref .tag.doc{background:var(--gold)}
+.ref .tag.repo{background:var(--accent)} .ref .tag.book{background:var(--slate-2)}
+.ref a{color:var(--accent-ink);word-break:break-word}
+.ref .why{display:block;color:var(--muted);font-size:15px;margin-top:3px}
+
+/* ---------- chrome ---------- */
+#bar{position:fixed;left:0;bottom:0;height:3px;background:var(--accent);z-index:40;
+  transition:width .25s}
+#hud{position:fixed;right:16px;bottom:14px;z-index:40;font-family:Archivo,sans-serif;
+  font-size:13px;color:#8895A6;display:flex;gap:14px;align-items:center}
+#hud kbd{font-family:"IBM Plex Mono",monospace;background:#1A222C;color:#B9C4D2;
+  border-radius:4px;padding:2px 6px;font-size:11.5px}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:42vh;overflow:auto;z-index:50;
+  background:#0E141B;color:#C7D2E0;border-top:2px solid var(--accent);padding:18px 26px;
+  display:none;font-size:15.5px;line-height:1.55}
+#notes.on{display:block}
+#notes h5{font-family:Archivo,sans-serif;font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:#7A8899;margin:0 0 8px}
+#notes b{color:#fff}
+#grid{position:fixed;inset:0;z-index:60;background:#0B0F14;overflow:auto;padding:26px;
+  display:none;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:14px;
+  align-content:start}
+#grid.on{display:grid}
+.thumb{background:var(--paper);border-radius:7px;padding:12px;cursor:pointer;
+  border:2px solid transparent;min-height:104px}
+.thumb:hover,.thumb.cur{border-color:var(--accent)}
+.thumb .tn{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--faint)}
+.thumb .tt{font-family:Archivo,sans-serif;font-size:13.5px;font-weight:600;color:var(--ink);
+  margin-top:5px;line-height:1.28}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* --- per-slide density adjustments -------------------------------------
+   Measured, not guessed: these two slides overflowed the 1280x720 stage by
+   33px and 25px respectively. A slide that overflows is silently cropped on
+   a projector, so the deck self-checks -- see the console helper at the
+   bottom of the script. --------------------------------------------------- */
+.slide.tight p{margin-bottom:10px;font-size:20.5px}
+.slide.tight .rule{margin:9px 0 15px}
+.slide.tight .ctl{margin-bottom:10px}
+.slide.tight .pull{margin:4px 0 0;padding:13px 20px}
+.slide.tight .pull p{font-size:18px}
+.slide.tight table{font-size:16.5px}
+.slide.tight table td{padding:6px 14px 6px 0}
+.slide.tight .sub{margin:-2px 0 12px}
+.slide.tight h2{font-size:34px}
+
+@media print{
+  html,body{overflow:visible;background:#fff;height:auto}
+  #stage{position:static;transform:none!important;width:100%;height:auto;box-shadow:none}
+  .slide{display:flex!important;position:relative;page-break-after:always;
+    height:190mm;animation:none}
+  .frag{opacity:1!important;filter:none!important}
+  .reveal-body{display:block!important}
+  .exp .detail{display:block!important}
+  #bar,#hud,#notes,#grid{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div id="stage" aria-live="polite"></div>
+<div id="bar"></div>
+<div id="hud">
+  <span id="pos" class="mono">1 / 1</span>
+  <span><kbd>←</kbd><kbd>→</kbd> move</span>
+  <span><kbd>S</kbd> notes</span>
+  <span><kbd>O</kbd> overview</span>
+  <span><kbd>F</kbd> full</span>
+</div>
+<div id="notes"><h5>Speaker notes</h5><div id="notesbody"></div></div>
+<div id="grid"></div>
+
+<script>
+/* =====================================================================
+   AI in Practice 2
+   T5 · What Breaks Between the Notebook and Production
+   Author: Subrat Panda · Plaksha University
+
+   Self-contained. Open in a browser and press F.
+     arrows / space  move      S  speaker notes
+     O  overview grid          F  full screen
+   Run overflowCheck() in the console before presenting.
+
+   Source: instructor/decks/src/T5(.tmpl).js  ·  Rebuild: python instructor/decks/build_html_decks.py
+   ===================================================================== */
+
+const AUTHOR = "Subrat Panda";
+
+/* Measured on the reference model, holdout months 12-13 (3,796 claims):
+   [threshold, rupees per claim, automation rate, bad claims paid, F1]
+   Generated from the reference predictions -- see instructor/MEASURED_RESULTS.md. */
+const CURVE = [[0.002, 500.0, 0.0, 0, 0.285], [0.004, 500.0, 0.0, 0, 0.285], [0.006, 500.0, 0.0, 0, 0.285], [0.008, 500.0, 0.0, 0, 0.285], [0.01, 499.47, 0.0011, 0, 0.285], [0.012, 494.86, 0.0103, 0, 0.288], [0.014, 498.66, 0.0379, 2, 0.294], [0.016, 478.77, 0.0777, 2, 0.304], [0.018, 466.49, 0.1399, 4, 0.322], [0.02, 516.25, 0.2131, 11, 0.343], [0.022, 563.2, 0.2824, 17, 0.366], [0.024, 665.81, 0.3443, 26, 0.388], [0.026, 672.21, 0.3981, 29, 0.413], [0.028, 789.04, 0.447, 36, 0.436], [0.03, 921.6, 0.4876, 41, 0.458], [0.032, 1041.12, 0.5211, 46, 0.478], [0.034, 1043.76, 0.5435, 47, 0.494], [0.036, 1036.3, 0.573, 48, 0.518], [0.038, 1074.24, 0.5959, 50, 0.537], [0.04, 1145.36, 0.6183, 56, 0.553], [0.042, 1153.56, 0.6354, 57, 0.57], [0.044, 1197.15, 0.6502, 60, 0.583], [0.046, 1285.96, 0.6612, 63, 0.593], [0.048, 1398.18, 0.6726, 66, 0.603], [0.05, 1453.82, 0.6841, 70, 0.613], [0.06, 1722.6, 0.7171, 82, 0.644], [0.07, 1936.28, 0.7432, 89, 0.675], [0.08, 2132.53, 0.7584, 96, 0.691], [0.09, 2190.57, 0.7695, 101, 0.704], [0.1, 2442.26, 0.78, 109, 0.712], [0.11, 2671.68, 0.7898, 115, 0.722], [0.12, 2698.16, 0.8001, 118, 0.738], [0.13, 2767.02, 0.8072, 122, 0.747], [0.14, 2771.79, 0.8122, 123, 0.756], [0.15, 3071.44, 0.8172, 130, 0.756], [0.16, 3204.72, 0.8219, 136, 0.757], [0.17, 3383.01, 0.8261, 141, 0.759], [0.18, 3439.52, 0.8309, 145, 0.764], [0.19, 3615.12, 0.8354, 152, 0.763], [0.2, 3643.12, 0.838, 154, 0.766], [0.225, 3770.63, 0.8438, 158, 0.773], [0.25, 4328.64, 0.8488, 166, 0.772], [0.3, 4824.63, 0.8572, 187, 0.757], [0.35, 5112.04, 0.8643, 196, 0.759], [0.4, 5512.17, 0.8714, 215, 0.744], [0.45, 5797.97, 0.8751, 227, 0.731], [0.5, 6451.05, 0.8825, 248, 0.711], [0.55, 6911.51, 0.8865, 258, 0.702], [0.6, 7213.96, 0.8894, 268, 0.691], [0.65, 7501.19, 0.8928, 279, 0.678], [0.7, 7870.23, 0.8957, 290, 0.664], [0.75, 8754.48, 0.9009, 307, 0.643], [0.8, 9394.42, 0.9131, 346, 0.593], [0.85, 11122.08, 0.9336, 410, 0.501], [0.9, 15471.52, 0.9834, 575, 0.161], [0.95, 17252.11, 0.9995, 629, 0.006]];
+
+/* Real 422 bodies from the reference service (FastAPI + Pydantic 2). */
+const RESP = {"unknown plan": [422, "literal_error", ["body", "plan"], "Input should be 'bronze', 'silver', 'gold' or 'platinum'"], "leak column sent": [422, "extra_forbidden", ["body", "assessor_note_length"], "Extra inputs are not permitted"], "negative amount": [422, "greater_than", ["body", "claim_amount"], "Input should be greater than 0"], "string for a number": [422, "int_parsing", ["body", "sum_insured"], "Input should be a valid integer, unable to parse string as an integer"], "ratio out of range": [422, "less_than_equal", ["body", "claim_to_si_ratio"], "Input should be less than or equal to 1"], "missing field": [422, "missing", ["body", "plan"], "Field required"], "valid": [200, {"claim_id": "CLM-1020746", "p_reject": 0.045283, "decision": "review", "threshold": 0.018, "model_version": "claims-triage-f39f014c5581"}]};
+
+/* "Who versions what": git, the DVC cache and remote, MLflow, the container, the clean clone.
+   One picture, used by the Lab 8 briefing, the T5 deck (§3), and build_infographics.py
+   (decks/infographics/versions.svg for the T5 notes and the pptx). */
+const VD_THEME = { teal: "var(--teal)", tealSoft: "var(--teal-soft)", ink: "var(--ink)", muted: "var(--muted)",
+  paper: "var(--paper)", gold: "var(--gold)", goldSoft: "var(--gold-soft)", body: "var(--body)",
+  accent: "var(--accent)", accentSoft: "var(--accent-soft)", onInk: "#fff", onInkSoft: "#C3D0E0" };
+
+function versionsDiagram(T = VD_THEME) {
+  return `<svg viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Who versions what" style="width:100%;height:auto;display:block">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0L10 5L0 10z" fill="${T.muted}"/></marker></defs>
+  <style>
+    .vd-lbl{font-family:Archivo,Helvetica,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.6px}
+    .vd-big{font-family:Archivo,Helvetica,sans-serif;font-size:22px;font-weight:700}
+    .vd-f{font-family:"IBM Plex Mono",Menlo,monospace;font-size:15px}
+    .vd-s{font-family:"Source Serif 4",Georgia,serif;font-size:15px}
+  </style>
+  <!-- git: the repo -->
+  <rect x="0" y="0" width="390" height="300" rx="14" fill="${T.tealSoft}" stroke="${T.teal}" stroke-width="2"/>
+  <text x="18" y="28" class="vd-lbl" fill="${T.teal}">GIT · YOUR REPO</text>
+  <text x="18" y="56" class="vd-big" fill="${T.ink}">which version</text>
+  <g class="vd-f" fill="${T.ink}">
+    <text x="22" y="96">labs/lab08/train.py</text><text x="236" y="96" class="vd-s" fill="${T.muted}">the code</text>
+    <text x="22" y="126">params.yaml</text><text x="236" y="126" class="vd-s" fill="${T.muted}">the settings</text>
+    <text x="22" y="156">dvc.yaml</text><text x="236" y="156" class="vd-s" fill="${T.muted}">the recipe</text>
+    <text x="22" y="186">dvc.lock</text><text x="236" y="186" class="vd-s" fill="${T.muted}">the receipt (md5s)</text>
+    <text x="22" y="216">metrics.json</text><text x="236" y="216" class="vd-s" fill="${T.muted}">small, diffable</text>
+  </g>
+  <rect x="14" y="236" width="362" height="48" rx="8" fill="${T.paper}" stroke="${T.gold}" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="26" y="266" class="vd-f" fill="${T.ink}">claims.parquet.dvc</text>
+  <text x="208" y="266" class="vd-s" fill="${T.gold}">a pointer: md5 + size</text>
+  <!-- DVC cache -->
+  <rect x="450" y="150" width="250" height="134" rx="14" fill="${T.goldSoft}" stroke="${T.gold}" stroke-width="2"/>
+  <text x="468" y="178" class="vd-lbl" fill="${T.gold}">DVC CACHE · .dvc/cache</text>
+  <text x="468" y="206" class="vd-big" fill="${T.ink}">the bytes</text>
+  <text x="468" y="234" class="vd-s" fill="${T.body}">the data, the model,</text>
+  <text x="468" y="256" class="vd-s" fill="${T.body}">filed by their md5</text>
+  <path d="M390 260 H446" stroke="${T.muted}" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="404" y="250" class="vd-f" fill="${T.muted}" font-size="12">md5</text>
+  <!-- DVC remote -->
+  <rect x="760" y="150" width="240" height="134" rx="14" fill="${T.paper}" stroke="${T.gold}" stroke-width="2"/>
+  <text x="778" y="178" class="vd-lbl" fill="${T.gold}">DVC REMOTE · .dvcstore</text>
+  <text x="778" y="206" class="vd-big" fill="${T.ink}">bytes for others</text>
+  <text x="778" y="234" class="vd-s" fill="${T.body}">today a folder on one</text>
+  <text x="778" y="256" class="vd-s" fill="${T.body}">laptop; at work, S3/GCS</text>
+  <path d="M702 205 H756" stroke="${T.muted}" stroke-width="2.5" marker-end="url(#ah)"/>
+  <path d="M756 240 H704" stroke="${T.muted}" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="706" y="198" class="vd-f" fill="${T.muted}" font-size="12">push</text>
+  <text x="712" y="258" class="vd-f" fill="${T.muted}" font-size="12">pull</text>
+  <!-- MLflow -->
+  <rect x="450" y="0" width="550" height="110" rx="14" fill="${T.accentSoft}" stroke="${T.accent}" stroke-width="2"/>
+  <text x="468" y="28" class="vd-lbl" fill="${T.accent}">MLFLOW · mlflow.db · port 18500</text>
+  <text x="468" y="58" class="vd-big" fill="${T.ink}">what you tried</text>
+  <text x="468" y="88" class="vd-s" fill="${T.body}">runs and metrics, compared: a lab notebook, not what you ship</text>
+  <!-- container -->
+  <rect x="0" y="318" width="1000" height="44" rx="10" fill="${T.ink}"/>
+  <text x="18" y="346" class="vd-lbl" fill="${T.onInk}">THE CONTAINER + uv.lock</text>
+  <text x="300" y="346" class="vd-s" fill="${T.onInkSoft}">everything else: Python, every library, the OS maths libraries</text>
+  <!-- clean clone -->
+  <text x="0" y="398" class="vd-lbl" fill="${T.muted}">THE CLEAN CLONE (LAB 8, PART C4)</text>
+  <text x="0" y="428" class="vd-f" fill="${T.ink}">git clone  →  dvc pull  →  dvc repro --force  →  dvc metrics diff</text>
+  <text x="742" y="428" class="vd-s" fill="${T.teal}" font-weight="700">nothing printed = same model</text>
+</svg>`;
+}
+
+if (typeof module !== "undefined") module.exports = { versionsDiagram };
+
+
+const SLIDES = [
+
+/* 1 ------------------------------------------------------------------ */
+{ t:"Title", cls:"dark", html:`
+  <p class="eyebrow">AI in Practice 2 · Theory 5 · Week 1</p>
+  <div class="tick"></div>
+  <h1>What breaks between the notebook and production</h1>
+  <p style="font-size:24px;max-width:60ch;color:#B6C3D4;margin-top:6px">
+    One ordinary model, handed over the ordinary way, and everything that stops it
+    being a product: rebuilding it, trusting it, pricing it, serving it, shipping it.</p>
+  <div class="byline">
+    <div><b>${AUTHOR}</b>Plaksha University · MS in Artificial Intelligence</div>
+    <div style="text-align:right">90 minutes<br>
+      <span style="color:#7E94B4">Prepares you for Labs 8 and 9</span></div>
+  </div>`,
+  notes:`Every number in this deck was measured on the course's own claims model in the
+  course container. Say that early, and say they will reproduce most of them this week.` },
+
+/* 2 ------------------------------------------------------------------ */
+{ t:"The handover", html:`
+  <h2>Monday morning, Platform Engineering</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div>
+      <p>The data-science team hands over the claims-triage model:</p>
+      <table>
+        <tr><td class="mono">train_model.py</td><td>"exported from the notebook"</td></tr>
+        <tr><td class="mono">requirements.txt</td><td>four package names</td></tr>
+        <tr><td class="mono">model.pkl</td><td>the model</td></tr>
+        <tr><td class="mono">MODEL_CARD.md</td><td>accuracy <b>0.981</b> · AUC <b>0.997</b></td></tr>
+      </table>
+    </div>
+    <div class="card"><h4>The note</h4>
+      <p style="font-size:19px;font-style:italic">"The model is trained and tested and we are
+      confident it is ready for production … Please wrap it in an API and deploy. We are
+      moving on to the fraud-ring project next sprint."</p></div>
+  </div>
+  <div class="pull frag" style="margin-top:18px"><p>Nothing about this is unusual.
+    By the end of this session you will know three things about it that its authors
+    did not: <b>it cannot be rebuilt</b>, <b>it is cheating</b>, and <b>at its default
+    threshold it costs more than having no model at all</b>.</p></div>`,
+  notes:`Ask: who has received a handover like this? Who has <i>sent</i> one? Most hands go
+  up for the second question if they are honest.` },
+
+/* 3 ------------------------------------------------------------------ */
+{ t:"Where we are going", html:`
+  <h2>Where we are going</h2>
+  <div class="rule"></div>
+  <div class="grid3">
+    <div class="card"><h4>1 · The artefact</h4><p class="small" style="margin:0">A model is four
+      things. Usually three are unversioned.</p></div>
+    <div class="card"><h4>2 · Reproducibility</h4><p class="small" style="margin:0">A property
+      with a test, and three possible answers.</p></div>
+    <div class="card"><h4>3 · Versioning</h4><p class="small" style="margin:0">git, DVC, MLflow:
+      who versions what, and the clean-clone test.</p></div>
+    <div class="card"><h4>4 · What it may know</h4><p class="small" style="margin:0">Leakage, and
+      its quieter sibling, skew.</p></div>
+    <div class="card"><h4>5 · The operating point</h4><p class="small" style="margin:0">The
+      threshold is a business decision, in rupees.</p></div>
+    <div class="card"><h4>6 · The contract</h4><p class="small" style="margin:0">422 is not 500.
+      Liveness is not readiness.</p></div>
+    <div class="card"><h4>7 · The image</h4><p class="small" style="margin:0">What a container
+      guarantees, and what it does not.</p></div>
+    <div class="card"><h4>8 · Load</h4><p class="small" style="margin:0">Percentiles, the knee,
+      batching, and the real workload.</p></div>
+    <div class="card" style="background:var(--accent-soft)"><h4>Labs 8 · 9</h4><p class="small" style="margin:0">
+      You rebuild, price, serve and ship this model this week.</p></div>
+  </div>
+  <p class="tiny" style="margin-top:14px">Full prose: <code>theory/T5-notebook-to-production.md</code></p>`,
+  notes:`60 seconds.` },
+
+/* 4 ------------------------------------------------------------------ */
+{ t:"§1 The artefact", cls:"dark", html:`
+  <p class="secnum mono">01</p>
+  <h2 style="font-size:44px">The artefact problem</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    What exactly was handed over, and what would you need to make it again?</p>`,
+  notes:`0–8 min.` },
+
+/* 5 ------------------------------------------------------------------ */
+{ t:"A model is four things", html:`
+  <h2>A model is four things</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th style="width:170px">Part</th><th>What it is</th><th>How the handover versioned it</th></tr>
+    <tr><td><b>Code</b></td><td>the training script and its preprocessing</td>
+      <td class="frag">a notebook export, <b>no seed</b></td></tr>
+    <tr><td><b>Data</b></td><td>the exact rows it was trained on</td>
+      <td class="frag">a relative path: <b>no hash, no date</b></td></tr>
+    <tr><td><b>Weights</b></td><td>the fitted parameters</td>
+      <td class="frag">a pickle with <b>no record of what produced it</b></td></tr>
+    <tr><td><b>Environment</b></td><td>Python, libraries, OS, maths libraries</td>
+      <td class="frag"><b>four unpinned</b> package names</td></tr>
+  </table>
+  <div class="pull frag" style="margin-top:20px"><p>Change any one and you may get a
+    different model. Hidden technical debt (Sculley et al.) lives in the diagram around
+    the model, not in the model. It is paid when an auditor asks <i>which model decided
+    this claim last March</i>, and nobody can say.</p></div>`,
+  notes:`Reveal the right-hand column one row at a time and ask the room to predict each
+  before you click. This is exactly Lab 8's A1 inventory, so do not over-explain.` },
+
+/* 6 ------------------------------------------------------------------ */
+{ t:"§2 Reproducibility", cls:"dark", html:`
+  <p class="secnum mono">02</p>
+  <h2 style="font-size:44px">Reproducibility is a testable property</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    Not an adjective of approval. A property with a test, and the test has three
+    possible answers.</p>`,
+  notes:`8–22 min. The longest section, because Lab 8 lives here.` },
+
+/* 7 ------------------------------------------------------------------ */
+{ t:"Three builds, one script", html:`
+  <h2>Same script, same data, three builds</h2>
+  <p class="sub">The supplied <code>train_model.py</code>, unchanged, run three times</p>
+  <div class="rule"></div>
+  <div class="grid2">
+    <table>
+      <tr><th></th><th class="n">run 1</th><th class="n">run 2</th><th class="n">run 3</th></tr>
+      <tr><td>AUC</td><td class="n">0.9974</td><td class="n">0.9974</td><td class="n">0.9976</td></tr>
+      <tr class="frag"><td>trees built</td><td class="n">91</td><td class="n">105</td><td class="n">79</td></tr>
+    </table>
+    <div class="readout frag">
+      <div class="row"><span class="lbl">Decisions that differ, per pair of builds</span>
+        <span class="val big accent">244–299</span></div>
+      <div class="row"><span class="lbl">of all claims</span><span class="val">45,365</span></div>
+      <div class="row"><span class="lbl">Customers a day, at 2,000 claims/day</span>
+        <span class="val big">≈ 12</span></div>
+      <p class="verdict">Nobody changed anything.</p>
+    </div>
+  </div>
+  <div class="pull frag" style="margin-top:18px"><p>The AUCs agree to three decimals.
+    The <b>decisions</b> do not. The customer whose claim flipped is not comforted by
+    the AUC.</p></div>`,
+  notes:`Ask before revealing the second row: "Same AUC, so same model?" Let someone say
+  yes. Then reveal the trees, then the decisions.
+  <br><br>Cause: HistGradientBoosting turns on early stopping by itself above 10,000 rows
+  and holds out a random 10% with no seed. Do not reveal the cause yet if you want them
+  to find it in Lab 8 A2; the notes have it.` },
+
+/* 8 ------------------------------------------------------------------ */
+{ t:"Three levels", html:`
+  <h2>Three levels of "the same model"</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th style="width:230px">Level</th><th>Means</th><th>Checked by</th></tr>
+    <tr><td><b>Bit-identical</b></td><td>every probability, for every input, is the same float</td>
+      <td>a SHA-256 of the predictions: <b>the fingerprint</b></td></tr>
+    <tr><td><b>Decision-identical</b></td><td>probabilities differ; no decision changes at the thresholds in use</td>
+      <td>counting flips per threshold</td></tr>
+    <tr><td><b>Metric-identical</b></td><td>the headline metric matches to a few decimals</td>
+      <td>comparing numbers: <b>the weakest, and the most claimed</b></td></tr>
+  </table>
+  <div class="grid2 frag" style="margin-top:20px">
+    <div class="card"><h4>CI asking "did this refactor change the model?"</h4>
+      <p class="small" style="margin:0">wants <b>bit-identical</b>: the only level with no
+      tolerance to argue about.</p></div>
+    <div class="card"><h4>An auditor re-running last quarter</h4>
+      <p class="small" style="margin:0">needs <b>decision-identical at the deployed
+      threshold</b>.</p></div>
+  </div>
+  <p class="frag" style="margin-top:14px"><b>"Reproducible" alone means nothing. Say which level.</b></p>`,
+  notes:`The three runs on the previous slide are metric-identical and not decision-identical.
+  Ask them to classify it before you say so.` },
+
+/* 9 ------------------------------------------------------------------ */
+{ t:"Where nondeterminism hides", html:`
+  <h2>Where does nondeterminism hide? Vote first.</h2>
+  <p class="sub">Click a suspect to see what was measured on this model</p>
+  <div class="rule" style="margin-bottom:12px"></div>
+  <div class="chips" id="suspects"></div>
+  <div id="sslot" class="card" style="min-height:150px"><p class="small" style="margin:0">
+    For each suspect: does it change the model here, yes or no? Hands up, then click.</p></div>`,
+  notes:`This is the best five minutes of the section. For each chip, get a show of hands
+  <i>before</i> clicking. Most rooms get row order wrong (they think the seed covers it) and
+  category order wrong (it is a famous trap that does not fire in scikit-learn 1.9.1).
+  <br><br>The general lesson: <b>test the trap before you fix it.</b>` },
+
+/* 10 ----------------------------------------------------------------- */
+{ t:"OS, not CPU", cls:"dark", html:`
+  <div class="tick" style="margin-top:56px"></div>
+  <p class="statement" style="font-size:38px">Same pins, same seed, same data.<br>
+    macOS and Linux differ in the 17th decimal place.<br>
+    Linux on ARM and Linux on x86 agree bit for bit.</p>
+  <p class="attrib">The dividing line is the <b style="color:#fff">operating system</b>, not the
+    CPU: the platform builds of the numerical wheels differ (compiler, OpenMP runtime,
+    <code style="background:#26364a;color:#fff">libm</code>). 58 of 45,365 probabilities, by at most
+    5.6 × 10⁻¹⁷, and 0 decisions. Controlled for the Python patch version.
+    <br><br><b style="color:#F0A18A">That is why every laptop in this course runs the same Linux
+    image.</b></p>`,
+  notes:`Someone will ask whether 10⁻¹⁷ matters. Answer: not for decisions here, which is why
+  it is "decision-identical". But it breaks a fingerprint check, and a CI pipeline that
+  cannot tell a real change from a platform difference is a pipeline people learn to ignore.` },
+
+/* 11 ----------------------------------------------------------------- */
+{ t:"§3 Versioning", cls:"dark", html:`
+  <p class="secnum mono">03</p>
+  <h2 style="font-size:44px">Versioning code, data and experiments</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    Four parts of the artefact, and a different tool for each.</p>`,
+  notes:`22–35 min.` },
+
+/* 12 ----------------------------------------------------------------- */
+{ t:"Who versions what", html:`
+  <h2 style="margin:0 0 12px">Who versions what</h2>
+  ${versionsDiagram()}`,
+  notes:`Say it in one breath: git carries <i>which</i> version, DVC carries <i>the bytes</i>, MLflow remembers
+  what you <i>tried</i>, the container pins <i>everything else</i>. DVC answers "what exactly produced the model in
+  this commit?" (what you ship); MLflow answers "what did we try this week?" (what you explored). The remote is
+  S3, GCS or Azure Blob at work, a local folder in Lab 8. The same picture opens Part C of Lab 8 as a live demo.` },
+
+/* 13 ----------------------------------------------------------------- */
+{ t:"A pipeline stage", html:`
+  <h2>A pipeline is a declaration</h2>
+  <div class="rule"></div>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+<pre>stages:
+  train:
+    cmd: python labs/lab08/train.py ...
+    deps:
+      - data/claims/claims.parquet
+      - labs/lab08/train.py
+    params:
+      - labs/lab08/params.yaml:
+    outs:
+      - artifacts/lab08/model.joblib
+      - artifacts/lab08/predictions.parquet
+    metrics:
+      - artifacts/lab08/metrics.json:
+          cache: false</pre>
+    <div>
+      <p class="small">Declare the command, what it reads, its parameters, what it writes.
+        DVC can then say "stale?" without running anything, and <code>dvc.lock</code>
+        records which bytes made which bytes.</p>
+      <div class="pull frag"><p><b>The trap, measured.</b> In flow style,
+        <code>params: [labs/lab08/params.yaml:]</code> is read as a parameter <i>named</i>
+        that, inside the default <code>params.yaml</code>. Under <code>dvc repro -q</code>
+        the stage failed with <b>no output at all</b>, exit 255.</p></div>
+    </div>
+  </div>`,
+  notes:`Block style, one item per line, and never <code>-q</code> while debugging.` },
+
+/* 14 ----------------------------------------------------------------- */
+{ t:"The clean clone", html:`
+  <h2>The test: a clean clone</h2>
+  <div class="rule"></div>
+<pre>git clone team-repo /tmp/clone &amp;&amp; cd /tmp/clone
+dvc pull                      # data + model bytes from the remote
+dvc repro --force             # retrain from nothing
+check_reproducible.py  original/  /tmp/clone/</pre>
+  <div class="grid2" style="margin-top:18px">
+    <div class="readout frag">
+      <div class="row"><span class="lbl">Reference, clone to verdict</span><span class="val big">≈ 5 s</span></div>
+      <div class="row"><span class="lbl">Verdict</span><span class="val accent">BIT-IDENTICAL</span></div>
+      <p class="verdict">The clone knows only what was committed and pushed. Everything you
+        forgot to version shows up here, as a failure.</p>
+    </div>
+    <div class="card frag"><h4>A check that can pass on nothing</h4>
+      <p class="small" style="margin:0">The first version of this check compared two fingerprints that
+      were both <b>empty</b>, because training had crashed, and printed "bit-identical". Two empty
+      strings are equal. The version you get refuses missing, empty, malformed and stale
+      fingerprints.</p></div>
+  </div>`,
+  notes:`The "passes on nothing" story is true, from building the reference. It is worth more
+  than any slide about testing philosophy: every student has written a check like that.` },
+
+/* 15 ----------------------------------------------------------------- */
+{ t:"§4 What the model may know", cls:"dark", html:`
+  <p class="secnum mono">04</p>
+  <h2 style="font-size:44px">What the model may know</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    Leakage, and its quieter sibling. The same question asked twice.</p>`,
+  notes:`35–45 min.` },
+
+/* 16 ----------------------------------------------------------------- */
+{ t:"The leak", cls:"tight", html:`
+  <h2>AUC 0.997 is a symptom</h2>
+  <p class="sub">Permutation importance on the supplied model: shuffle one column, re-score</p>
+  <div class="rule"></div>
+  <div id="impbars"></div>
+  <div class="frag" style="margin-top:14px">
+    <p><b>Evidence is not proof.</b> Sometimes one feature really is that predictive. The question
+      that decides it is about <b>time</b>: <i>who writes the assessor's note, and when?</i></p>
+    <button class="reveal-btn" data-reveal="leak_a">Reveal the answer</button>
+    <div class="reveal-body" id="leak_a"><div class="pull"><p>The assessor, <b>while deciding the
+      claim</b>. The model exists to decide <i>before</i> an assessor sees it. Remove the column:
+      AUC <b>0.9218</b>. Honest, useful, unremarkable.</p></div></div>
+  </div>`,
+  notes:`Ask the room to guess the top feature from the column list before showing the bars.
+  The model card itself names it as the strongest predictor, which is the saddest line in
+  the handover.` },
+
+/* 17 ----------------------------------------------------------------- */
+{ t:"Skew", html:`
+  <h2>Its quieter sibling: training–serving skew</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div class="card bad"><h4>Leakage</h4><ul>
+      <li>The feature <b>does not exist</b> at decision time</li>
+      <li>Signature: a score too good for the problem</li>
+      <li>Visible offline, if you look</li></ul></div>
+    <div class="card bad"><h4>Skew</h4><ul>
+      <li>The feature exists, but is <b>computed differently</b> when serving: another window, another join, another default</li>
+      <li>Signature: none offline, because offline both sides use the training computation</li>
+      <li>Costs you at the operating point</li></ul></div>
+  </div>
+  <div class="pull frag" style="margin-top:18px"><p>Both are one question: <b>what does the model
+    actually know at the moment it decides?</b> You meet skew in Lab 11.</p></div>`,
+  notes:`Do not name the skewed feature. Lab 11 is a discovery lab.` },
+
+/* 18 ----------------------------------------------------------------- */
+{ t:"§5 The operating point", cls:"dark", html:`
+  <p class="secnum mono">05</p>
+  <h2 style="font-size:44px">The prediction as a product</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    A classifier outputs a probability. A business needs a decision. The threshold between
+    them is where the money is.</p>`,
+  notes:`45–58 min. The most important section for their careers; protect its time.` },
+
+/* 19 ----------------------------------------------------------------- */
+{ t:"Price the errors", html:`
+  <h2>Price the errors first</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th>Model says</th><th>Truth</th><th class="n">Cost to Aurora</th></tr>
+    <tr><td>auto-approve (<code>p &lt; t</code>)</td><td>claim was fine</td><td class="n">₹0</td></tr>
+    <tr><td>auto-approve</td><td><b>should have been rejected</b></td><td class="n">its amount: mean <b>₹98,482</b></td></tr>
+    <tr><td>send to an assessor</td><td>either</td><td class="n"><b>₹500</b></td></tr>
+  </table>
+  <p class="statement frag" style="color:var(--ink);font-size:64px;margin-top:26px">197 : 1</p>
+  <p class="frag">Accuracy and F1 weigh both errors equally. They optimise a different business
+    from the one you are in (Elkan, 2001).</p>`,
+  notes:`Before the next slide, ask: which way does the threshold move from 0.5? Everyone
+  should say "down". Then ask how far. Nobody guesses 0.018.` },
+
+/* 20 ----------------------------------------------------------------- */
+{ t:"Drag the threshold", cls:"tight", html:`
+  <h2>Drag the threshold</h2>
+  <p class="sub">The honest model on the holdout, 3,796 claims: every value here is measured</p>
+  <div class="rule"></div>
+  <div class="calc">
+    <div>
+      <div class="ctl"><label>Threshold: auto-approve when p &lt; t <b id="v_t">0.500</b></label>
+        <input type="range" id="s_t" min="0" max="0" step="1" value="0"></div>
+      <svg id="curve" viewBox="0 0 520 250" style="width:100%;height:250px"></svg>
+      <div class="chips" style="margin-top:6px">
+        <span class="chip" data-t="0.5">default 0.5</span>
+        <span class="chip" data-t="0.225">F1-optimal</span>
+        <span class="chip" data-t="0.018">cost-optimal</span>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">₹ per claim</span><span class="val big accent" id="r_cost">–</span></div>
+      <div class="row"><span class="lbl">vs reviewing everything (₹500)</span><span class="val" id="r_vs">–</span></div>
+      <div class="row"><span class="lbl">Claims automated</span><span class="val" id="r_auto">–</span></div>
+      <div class="row"><span class="lbl">Bad claims paid</span><span class="val" id="r_bad">–</span></div>
+      <div class="row"><span class="lbl">F1</span><span class="val" id="r_f1">–</span></div>
+      <div class="row"><span class="lbl">Per year at 2,000 claims/day</span><span class="val" id="r_year">–</span></div>
+      <p class="verdict" id="r_note"></p>
+    </div>
+  </div>`,
+  notes:`Start at 0.5: <b>₹6,451 a claim, 12.9× the cost of no model at all.</b> Click
+  F1-optimal: better, still ₹3,771. Click cost-optimal: ₹466, 14% automated.
+  <br><br>Then drag slowly from 0.018 to 0.020 and let them watch it go <b>above ₹500</b>.
+  The optimum is a narrow ledge, not a valley. That sets up the next slide.` },
+
+/* 21 ----------------------------------------------------------------- */
+{ t:"The table that ends the argument", html:`
+  <h2>The table that ends the argument</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th>Policy</th><th class="n">Threshold</th><th class="n">₹ / claim</th><th class="n">Automated</th><th class="n">Bad paid</th></tr>
+    <tr><td>Review everything (no model)</td><td class="n">—</td><td class="n"><b>500</b></td><td class="n">0%</td><td class="n">0</td></tr>
+    <tr><td>Default</td><td class="n">0.5</td><td class="n">6,451</td><td class="n">88.3%</td><td class="n">248</td></tr>
+    <tr><td>F1-optimal</td><td class="n">0.225</td><td class="n">3,771</td><td class="n">84.4%</td><td class="n">158</td></tr>
+    <tr><td><b>Cost-optimal</b></td><td class="n"><b>0.018</b></td><td class="n"><b>466</b></td><td class="n"><b>14.0%</b></td><td class="n">4</td></tr>
+  </table>
+  <div class="grid3" style="margin-top:20px">
+    <div class="card frag"><h4>Default</h4><p class="small" style="margin:0"><b>12.9×</b> the cost of
+      having no model.</p></div>
+    <div class="card frag"><h4>F1's choice</h4><p class="small" style="margin:0">an extra
+      <b>₹241 crore a year</b> over the right one.</p></div>
+    <div class="card frag good"><h4>The right one</h4><p class="small" style="margin:0">saves
+      <b>₹2.45 crore a year</b>, automating 14%. Real, modest, and nothing like "most of the queue".</p></div>
+  </div>`,
+  notes:`Question for the room: is this model worth deploying? Hold the answer for the next slide.` },
+
+/* 22 ----------------------------------------------------------------- */
+{ t:"How sure are you?", html:`
+  <h2>How sure are you?</h2>
+  <div class="rule"></div>
+  <p>At the cost-optimal threshold, <b>4</b> bad claims are paid on the holdout. The whole
+    ₹34-a-claim margin over "review everything" rests on a handful of events.</p>
+  <div class="readout frag" style="max-width:760px">
+    <div class="row"><span class="lbl">Bootstrap, 1,000 resamples · ₹/claim at t = 0.018</span>
+      <span class="val big">₹435 – 510</span></div>
+    <div class="row"><span class="lbl">Resamples where the model beats reviewing everything</span>
+      <span class="val accent">95.0%</span></div>
+    <p class="verdict">The interval straddles ₹500. The recommendation survives, <b>with that
+      caveat stated</b>.</p>
+  </div>
+  <div class="pull frag" style="margin-top:18px"><p><b>The threshold is part of the model.</b>
+    Retyped into a service, it drifts. In Lab 9 it travels in a <b>bundle</b> with the model,
+    the feature order and the fingerprint, built by a pipeline stage.</p></div>`,
+  notes:`This is the honest version of a business case. Students who can say "₹466, with
+  a 95% interval of ₹435–510" in an interview are rare.` },
+
+/* 23 ----------------------------------------------------------------- */
+{ t:"§6 The contract", cls:"dark", html:`
+  <p class="secnum mono">06</p>
+  <h2 style="font-size:44px">Serving: the contract</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    What the service accepts, what it refuses, and how it says so.</p>`,
+  notes:`58–68 min.` },
+
+/* 24 ----------------------------------------------------------------- */
+{ t:"Send this request", cls:"tight", html:`
+  <h2>Send this request. What comes back?</h2>
+  <p class="sub">Real responses from the reference service (FastAPI + Pydantic)</p>
+  <div class="rule"></div>
+  <div class="chips" id="reqs"></div>
+  <pre id="rslot" style="min-height:150px;font-size:15px">Pick a request. Predict the status code first.</pre>
+  <div class="grid2 frag" style="margin-top:14px">
+    <div class="card"><h4>422 · "your request is wrong"</h4><p class="small" style="margin:0">A
+      good client fixes it and does <b>not</b> retry.</p></div>
+    <div class="card bad"><h4>500 · "we broke"</h4><p class="small" style="margin:0">Clients
+      retry, with backoff, often automatically. One bad upstream deploy becomes a
+      <b>retry storm</b>.</p></div>
+  </div>`,
+  notes:`Do the leak column last. It is the one that shows <code>extra="forbid"</code>:
+  Pydantic's default is to ignore unknown fields silently, and here that would hide a
+  client that misunderstands when the model runs.
+  <br><br>Also point at "unknown plan": passed through to a tree model it would not crash.
+  It would get a confident, meaningless probability.` },
+
+/* 25 ----------------------------------------------------------------- */
+{ t:"Liveness vs readiness", html:`
+  <h2>Liveness is not readiness</h2>
+  <div class="rule"></div>
+  <table>
+    <tr><th style="width:140px">Endpoint</th><th>Question</th><th>On failure, an orchestrator…</th></tr>
+    <tr><td class="mono">/health</td><td>is the process alive?</td><td><b>restarts</b> it</td></tr>
+    <tr><td class="mono">/ready</td><td>can it answer correctly <i>now</i>?</td><td><b>stops sending traffic</b>, and waits</td></tr>
+  </table>
+  <div class="grid2 frag" style="margin-top:20px">
+    <div class="card bad"><h4>Readiness checked as liveness</h4><p class="small" style="margin:0">a
+      slow model load gets the container killed, restarted, killed…</p></div>
+    <div class="card bad"><h4>No readiness at all</h4><p class="small" style="margin:0">traffic arrives
+      before the model does; every early request fails.</p></div>
+  </div>
+  <p class="frag" style="margin-top:16px">Load the model <b>once, at startup</b>, and let <code>/ready</code>
+    say when it is done. Reference: model load ≈ 0.5 s.</p>`,
+  notes:`Kubernetes has a third, the startup probe, for exactly the slow-load case. Mention
+  it only if asked.` },
+
+/* 26 ----------------------------------------------------------------- */
+{ t:"§7 The image", cls:"dark", html:`
+  <p class="secnum mono">07</p>
+  <h2 style="font-size:44px">Containers: what an image guarantees</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    And the five lines that make an image someone else can trust.</p>`,
+  notes:`68–78 min.` },
+
+/* 27 ----------------------------------------------------------------- */
+{ t:"The naive Dockerfile", html:`
+  <h2>A colleague's first Dockerfile. It works.</h2>
+  <p class="sub">Measured: <b>2.57 GB, runs as root</b>. Five decisions later: <b>698 MB, uid 10001, healthy</b>. Click each line.</p>
+  <div class="rule"></div>
+  <div id="naive"></div>`,
+  notes:`The line to dwell on is <code>COPY . .</code>: the image contains the git history,
+  the DVC cache and <b>the customers' claims data</b>. Ask who would be accountable if that
+  image were pushed to a public registry.` },
+
+/* 28 ----------------------------------------------------------------- */
+{ t:"What an image guarantees", html:`
+  <h2>What an image guarantees, and what it does not</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div class="card good"><h4>Guaranteed</h4><ul>
+      <li>the same files, libraries and OS userland wherever it runs</li>
+      <li>the same model bits: <b>measured identical on ARM and x86</b></li>
+      <li>the versions resolved at build time</li></ul></div>
+    <div class="card bad"><h4>Not guaranteed</h4><ul>
+      <li>the kernel: it is the host's</li>
+      <li>the same <i>image</i> when rebuilt: timestamps change the digest</li>
+      <li>that the resolved versions were right, <b>unless a lockfile pinned them</b></li>
+      <li>speed, and a GPU on macOS (week 4)</li></ul></div>
+  </div>
+  <div class="pull frag" style="margin-top:18px"><p>A teammate's rebuilt image has a different
+    digest and the <b>same fingerprint</b>. The fingerprint is the thing you care about:
+    <i>which model is running?</i></p></div>`,
+  notes:`Layers: deleting in a later layer does not shrink the image. The course image's
+  first draft ran <code>chown -R</code> in its own layer: +977 MB of duplicate.` },
+
+/* 29 ----------------------------------------------------------------- */
+{ t:"§8 Load", cls:"dark", html:`
+  <p class="secnum mono">08</p>
+  <h2 style="font-size:44px">Load, latency and batching</h2>
+  <p style="font-size:22px;max-width:52ch;margin-top:10px">
+    "Is it fast?" has no answer. "How many, at what p95, against how much real traffic?" does.</p>`,
+  notes:`78–85 min. Keep it brisk.` },
+
+/* 30 ----------------------------------------------------------------- */
+{ t:"The knee", cls:"tight", html:`
+  <h2>The knee, and Little's law</h2>
+  <p class="sub">One uvicorn worker, closed-loop load, measured</p>
+  <div class="rule"></div>
+  <div class="calc">
+    <div>
+      <div class="chips" id="loadmode"></div>
+      <table id="loadtab"></table>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">Little's law: clients ÷ throughput</span><span class="val" id="l_pred">–</span></div>
+      <div class="row"><span class="lbl">Measured mean latency</span><span class="val" id="l_meas">–</span></div>
+      <p class="verdict" id="l_note"></p>
+    </div>
+  </div>
+  <div class="pull frag" style="margin-top:12px"><p><b>Size to the workload first.</b> 2,000 claims a
+    day is <b>0.023 claims/s</b>. One process clears a day's volume, one claim at a time, in about
+    <b>33 seconds</b>. The engineering effort belongs in the threshold, which is worth crores.</p></div>`,
+  notes:`Click through 1, 8, 32 and let them see throughput flatten while latency climbs. Then
+  batch 50: 26× the throughput <i>and</i> a lower p95, because most of a request's cost is per
+  request, not per claim.` },
+
+/* 31 ----------------------------------------------------------------- */
+{ t:"This week", html:`
+  <h2>This week</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div class="card"><h4>Lab 8 · The model is not the system</h4><ul>
+      <li>Rebuild the supplied model; measure its disagreement</li>
+      <li>Find the leak: evidence <b>and</b> timing</li>
+      <li>Bit-identical across runs, threads, row order, a clean clone, a teammate's laptop</li>
+      <li>The operating point, in rupees, with its uncertainty</li></ul></div>
+    <div class="card"><h4>Lab 9 · Serve it, contain it</h4><ul>
+      <li><b>By hand, no coding agents</b>: your time is Lab 10's baseline</li>
+      <li>A contract: 15 tests, ten of them malformed input</li>
+      <li>Naive vs slim image, measured; cold start; a load table</li>
+      <li>A teammate rebuilds it and serves the same model</li></ul></div>
+  </div>
+  <p class="frag" style="margin-top:18px"><b>Before Monday:</b> <code>START_HERE_LAB8.md</code>. Team
+    repo created, all three laptops cloned, <code>make check</code> clean. <b>Before Wednesday:</b>
+    pull the base images at home.</p>`,
+  notes:`Teams of three are fixed for the course. Contribution statements with every lab.` },
+
+/* 32 ----------------------------------------------------------------- */
+{ t:"Reading", html:`
+  <h2>Reading</h2>
+  <div class="rule"></div>
+  <div class="refs">
+    <div class="ref"><span class="tag paper">paper</span><div>Sculley et al. (2015), <i>Hidden Technical
+      Debt in Machine Learning Systems</i>, NeurIPS<span class="why">The diagram behind §1. Short; read all of it.</span></div></div>
+    <div class="ref"><span class="tag paper">paper</span><div>Breck et al. (2017), <i>The ML Test Score</i>,
+      IEEE Big Data<span class="why">A rubric to hold Labs 8–13 against.</span></div></div>
+    <div class="ref"><span class="tag paper">paper</span><div>Kaufman et al. (2012), <i>Leakage in Data
+      Mining</i>, ACM TKDD<span class="why">§2–3: the taxonomy of leaks.</span></div></div>
+    <div class="ref"><span class="tag paper">paper</span><div>Elkan (2001), <i>The Foundations of
+      Cost-Sensitive Learning</i>, IJCAI<span class="why">Why the threshold follows from the cost matrix.</span></div></div>
+    <div class="ref"><span class="tag paper">paper</span><div>Dean &amp; Barroso (2013), <i>The Tail at
+      Scale</i>, CACM<span class="why">Why p99, not the mean.</span></div></div>
+    <div class="ref"><span class="tag doc">docs</span><div>scikit-learn <code>HistGradientBoostingClassifier</code> ·
+      DVC pipelines · MLflow Tracking · Docker multi-stage builds · Kubernetes probes</div></div>
+  </div>`,
+  notes:`` },
+
+/* 33 ----------------------------------------------------------------- */
+{ t:"Check yourself", html:`
+  <h2>Check yourself</h2>
+  <div class="rule"></div>
+  <div class="body-scroll" id="quiz"></div>`,
+  notes:`Use two or three of these as cold calls if time allows; the rest are for the train home.` },
+
+];
+
+/* ===================== widgets ======================================== */
+const SUSPECTS = [
+  {k:"No seed", v:"yes", m:"240–300 of 45,365 decisions differ between builds. Early stopping switches itself on above 10,000 rows and draws a random 10% validation split."},
+  {k:"Row order (seed set)", v:"yes", m:"Same rows, shuffled file, seed set: trees 87 vs 67, and 6,554 of 45,365 decisions differ at the operating threshold. The seed fixes positions, not claims. Sort by a stable key."},
+  {k:"Thread count", v:"no", m:"1, 4 and the default thread count: bit-identical."},
+  {k:"Category order", v:"no", m:"Inferred, explicit, even reversed: 0 probabilities differ. scikit-learn 1.9.1 encodes by value. A famous trap that does not fire here. Test before you fix."},
+  {k:"Python 3.12.11 vs 3.12.14", v:"no", m:"Bit-identical."},
+  {k:"ARM vs x86 (Linux)", v:"no", m:"Bit-identical, same container image on Apple Silicon and on Intel/AMD."},
+  {k:"macOS vs Linux", v:"last bits", m:"58 of 45,365 probabilities differ, by at most 5.6 × 10⁻¹⁷. 0 decisions. The platform builds of the numerical libraries differ."},
+];
+
+const NAIVE = [
+  {n:1, t:"FROM python:3.12", s:"the full image", d:"A compiler toolchain and hundreds of Debian packages that exist to compile things. Your dependencies ship as prebuilt wheels; you never compile anything.", fix:"<code>python:3.12-slim</code>, and a multi-stage build so build tools stay behind."},
+  {n:2, t:"COPY . .", s:"the whole folder", d:"Measured: the image contains the git history, the DVC cache, the MLflow database and <b>the customers' claims data</b>. With a host virtualenv in the folder, 606 MB of binaries for the wrong operating system.", fix:"An <b>allowlist</b> ignore file: <code>*</code>, then <code>!</code> only what is needed. Context 320 bytes."},
+  {n:3, t:"RUN pip install fastapi uvicorn scikit-learn …", s:"unpinned", d:"Installs whatever is newest on build day. Today scikit-learn 1.9.1 matches the pickle <b>by luck</b>. The week it does not, the model fails to load, or loads and behaves differently.", fix:"Install from the lockfile, serving dependencies only: <code>uv sync --frozen --no-dev --no-default-groups</code>."},
+  {n:4, t:"CMD [“uvicorn”, …]", s:"runs as root", d:"A compromised process is root inside the container, a much shorter step to the host.", fix:"<code>useradd --uid 10001 app</code> and <code>USER app</code>."},
+  {n:5, t:"(missing) HEALTHCHECK", s:"Docker cannot tell", d:"Docker reports the container as running from the first millisecond, whether or not the model has loaded.", fix:"<code>HEALTHCHECK</code> against <code>/ready</code>, written in Python because slim has no curl."},
+];
+
+const LOAD = [
+  {k:"1 client", c:1, tps:60.8, p50:14.7, p95:29.3, mean:16.4, batch:1},
+  {k:"8 clients", c:8, tps:81.3, p50:96.7, p95:114.1, mean:98.2, batch:1},
+  {k:"32 clients", c:32, tps:114.1, p50:279.5, p95:331.9, mean:279.8, batch:1},
+  {k:"batch 50 · 4 clients", c:4, tps:2987.0, p50:66.4, p95:74.0, mean:66.9, batch:50},
+];
+
+const QUIZ = [
+  {q:"A colleague says their model is reproducible because two runs gave AUC 0.9218. Which level is that?",
+   a:"Metric-identical, the weakest. Ask for the fingerprint (bit-identical) or at least the count of decisions that differ at the deployed threshold."},
+  {q:"You set random_state and still get different models from the same data. Two causes?",
+   a:"Row order (the seed fixes positions, not rows), or a different environment or platform. Shuffle-test on one machine separates them: if a shuffled copy changes the model, it is order."},
+  {q:"Why does the model differ in the 17th decimal between macOS and Linux, but not between ARM and x86 Linux?",
+   a:"The platform builds of the numerical wheels differ between operating systems (compiler, OpenMP, libm). Same OS, same wheels: identical bits, whatever the CPU."},
+  {q:"A feature has permutation importance 0.43 AUC. Is it a leak?",
+   a:"Not on that evidence alone. The deciding question: does its value exist at the moment the model must decide?"},
+  {q:"Errors cost ₹500 and ₹98,000. Which way does the threshold move from 0.5?",
+   a:"Down, a long way: auto-approving is only worth it when the chance of a bad claim is tiny. Here the optimum is 0.018."},
+  {q:"Your service returns 500 on a misspelled plan name. What happens next?",
+   a:"Clients with retry logic resend it, with backoff, possibly forever. A misspelling becomes load. It must be a 422 that names the field."},
+  {q:"At 32 clients, 114 requests/s. Predict the mean latency. What does adding clients do?",
+   a:"Little's law: 32 / 114 ≈ 0.28 s, which matches the measurement. More clients add latency, not throughput."},
+];
+
+function mountAll(){ mountSuspects(); mountImp(); mountCurve(); mountReqs(); mountNaive(); mountLoad();
+  const q=document.getElementById('quiz'); if(q) q.innerHTML=quizList(QUIZ); }
+
+function mountSuspects(){
+  const box=document.getElementById('suspects'), slot=document.getElementById('sslot'); if(!box) return;
+  box.innerHTML=SUSPECTS.map((s,n)=>`<span class="chip" data-n="${n}">${s.k}</span>`).join('');
+  box.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{
+    box.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    ch.classList.add('active','done'); const s=SUSPECTS[+ch.dataset.n];
+    const col = s.v==='yes' ? 'var(--accent-ink)' : (s.v==='no' ? 'var(--ok)' : 'var(--gold)');
+    slot.innerHTML=`<h4 style="color:${col}">${s.k}: changes the model? <b style="color:${col}">${s.v.toUpperCase()}</b></h4>
+      <p style="margin:0;font-size:19px">${s.m}</p>`;
+  });
+}
+
+function mountImp(){
+  const el=document.getElementById('impbars'); if(!el) return;
+  const rows=[["assessor_note_length",0.4328],["policy_tenure_months",0.0066],["diagnosis_group",0.0059],
+              ["hospital_network",0.0006],["claim_amount",0.0003]];
+  el.innerHTML=rows.map(([k,v])=>`<div style="display:grid;grid-template-columns:260px 1fr 80px;gap:12px;align-items:center;margin:7px 0">
+    <span class="mono" style="font-size:15px">${k}</span>
+    <div style="background:var(--surface);border-radius:4px;height:26px"><div style="width:${Math.max(0.4,v/0.4328*100)}%;height:100%;border-radius:4px;background:${v>0.1?'var(--accent)':'var(--rule-strong)'}"></div></div>
+    <span class="mono" style="text-align:right">${v.toFixed(4)}</span></div>`).join('')
+    + `<p class="tiny" style="margin-top:4px">AUC drop when the column is shuffled, holdout, 5 repeats. Supplied model AUC 0.9973.</p>`;
+}
+
+function mountCurve(){
+  const s=document.getElementById('s_t'); if(!s) return;
+  const g=id=>document.getElementById(id), svg=g('curve');
+  s.max=CURVE.length-1;
+  const W=520,H=250,L=46,R=8,T=10,B=30, maxC=7000;
+  const xs=v=>L+(W-L-R)*(Math.log10(v)-Math.log10(0.002))/(Math.log10(0.95)-Math.log10(0.002));
+  const ys=c=>T+(H-T-B)*(1-Math.min(c,maxC)/maxC);
+  const path=CURVE.map((r,n)=>`${n?'L':'M'}${xs(r[0]).toFixed(1)},${ys(r[1]).toFixed(1)}`).join(' ');
+  const ticks=[0.002,0.01,0.05,0.2,0.5];
+  svg.innerHTML=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="#F1F3F6"/>
+    <line x1="${L}" x2="${W-R}" y1="${ys(500)}" y2="${ys(500)}" stroke="#1D5E5C" stroke-dasharray="5 4"/>
+    <text x="${W-R-4}" y="${ys(500)-6}" text-anchor="end" font-size="12" fill="#1D5E5C" font-family="Archivo">review everything · ₹500</text>
+    <path d="${path}" fill="none" stroke="#AE4224" stroke-width="2.5"/>
+    ${ticks.map(t=>`<text x="${xs(t)}" y="${H-10}" text-anchor="middle" font-size="12" fill="#626A78" font-family="IBM Plex Mono">${t}</text>`).join('')}
+    ${[0,2000,4000,6000].map(c=>`<text x="${L-6}" y="${ys(c)+4}" text-anchor="end" font-size="11" fill="#626A78" font-family="IBM Plex Mono">${c}</text>`).join('')}
+    <line id="cur_x" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#14161B" stroke-width="1.5"/>
+    <circle id="cur_p" r="6" fill="#14161B"/>`;
+  function show(n){
+    const [t,c,a,bad,f1]=CURVE[n];
+    g('v_t').textContent=t.toFixed(3);
+    g('r_cost').textContent='₹'+Math.round(c).toLocaleString('en-IN');
+    const ratio=c/500;
+    g('r_vs').textContent= c<500 ? `saves ₹${Math.round(500-c)}` : `${ratio.toFixed(1)}× worse`;
+    g('r_auto').textContent=(a*100).toFixed(1)+'%';
+    g('r_bad').textContent=bad; g('r_f1').textContent=f1.toFixed(3);
+    const yr=(500-c)*2000*365/1e7;
+    g('r_year').textContent= yr>=0 ? `saves ₹${yr.toFixed(2)} cr` : `costs ₹${(-yr).toFixed(0)} cr more`;
+    g('r_note').textContent = c<500 ? 'Cheaper than having no model at all.' :
+      (a>0.5 ? 'Automates most of the queue, and pays for it in bad claims.' : 'More expensive than reviewing everything.');
+    const x=xs(t), y=ys(c); const cx=svg.querySelector('#cur_x'), cp=svg.querySelector('#cur_p');
+    cx.setAttribute('x1',x); cx.setAttribute('x2',x); cp.setAttribute('cx',x); cp.setAttribute('cy',y);
+  }
+  const idx=t=>CURVE.findIndex(r=>Math.abs(r[0]-t)<1e-9);
+  s.oninput=()=>show(+s.value);
+  document.querySelectorAll('[data-t]').forEach(ch=>ch.onclick=()=>{ s.value=idx(+ch.dataset.t); show(+s.value); });
+  s.value=idx(0.5); show(+s.value);
+}
+
+function mountReqs(){
+  const box=document.getElementById('reqs'), slot=document.getElementById('rslot'); if(!box) return;
+  const order=["valid","unknown plan","negative amount","string for a number","ratio out of range","missing field","leak column sent"];
+  box.innerHTML=order.map(k=>`<span class="chip" data-k="${k}">${k}</span>`).join('');
+  box.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{
+    box.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); ch.classList.add('active','done');
+    const r=RESP[ch.dataset.k];
+    slot.textContent = ch.dataset.k==='valid'
+      ? `HTTP ${r[0]}\n${JSON.stringify(r[1],null,2)}`
+      : `HTTP ${r[0]}\n{"detail": [{\n  "type": "${r[1]}",\n  "loc":  ${JSON.stringify(r[2])},\n  "msg":  "${r[3]}"\n}]}`;
+  });
+}
+
+function mountNaive(){
+  const el=document.getElementById('naive'); if(!el) return;
+  el.innerHTML=expList(NAIVE.map(x=>({...x, fixLabel:'Instead'})));
+}
+
+function mountLoad(){
+  const box=document.getElementById('loadmode'); if(!box) return;
+  const g=id=>document.getElementById(id);
+  box.innerHTML=LOAD.map((r,n)=>`<span class="chip" data-n="${n}">${r.k}</span>`).join('');
+  function show(n){
+    box.querySelectorAll('.chip').forEach((c,m)=>c.classList.toggle('active',m===n));
+    g('loadtab').innerHTML=`<tr><th>Mode</th><th class="n">claims/s</th><th class="n">p50 ms</th><th class="n">p95 ms</th></tr>`
+      + LOAD.map((r,m)=>`<tr style="${m===n?'background:var(--accent-soft)':''}"><td>${r.k}</td>
+        <td class="n">${r.tps.toLocaleString('en-IN')}</td><td class="n">${r.p50}</td><td class="n">${r.p95}</td></tr>`).join('');
+    const r=LOAD[n], reqps=r.tps/r.batch, pred=r.c/reqps*1000;
+    g('l_pred').textContent=pred.toFixed(1)+' ms'; g('l_meas').textContent=r.mean.toFixed(1)+' ms';
+    g('l_note').textContent = r.batch>1
+      ? `50 claims per request: ${Math.round(r.tps/114.1)}× the saturated single-request throughput, at a lower p95.`
+      : (r.c===1 ? 'One client: latency is the service time.' :
+         'Throughput has nearly stopped rising; every extra client adds waiting, not work.');
+  }
+  box.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>show(+ch.dataset.n));
+  show(0);
+}
+
+/* ===================== engine ======================================= */
+const stage=document.getElementById('stage'), bar=document.getElementById('bar'),
+      pos=document.getElementById('pos'), notes=document.getElementById('notes'),
+      notesBody=document.getElementById('notesbody'), grid=document.getElementById('grid');
+let i=0, frag=0, fragEls=[];
+
+function fit(){
+  const s=Math.min(innerWidth/1280, innerHeight/720)*0.94;
+  stage.style.transform=`translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize',fit);
+
+function build(){
+  stage.innerHTML = SLIDES.map((s,n)=>
+    `<section class="slide ${s.cls||''}" data-n="${n}">${s.html}</section>`).join('');
+  grid.innerHTML = SLIDES.map((s,n)=>
+    `<div class="thumb" data-go="${n}"><div class="tn">${String(n+1).padStart(2,'0')}</div>
+     <div class="tt">${s.t}</div></div>`).join('');
+  grid.querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>{go(+el.dataset.go);toggleGrid(false);});
+  mountReveals(); if (typeof mountAll === 'function') mountAll();
+}
+
+function go(n,f){
+  i=Math.max(0,Math.min(SLIDES.length-1,n));
+  stage.querySelectorAll('.slide').forEach(el=>el.classList.toggle('on',+el.dataset.n===i));
+  const cur=stage.querySelector('.slide.on');
+  fragEls=[...cur.querySelectorAll('.frag')];
+  frag = f==='end' ? fragEls.length : 0;
+  paint();
+  notesBody.innerHTML = SLIDES[i].notes || '<i style="color:#66738a">No notes for this slide.</i>';
+  pos.textContent=`${i+1} / ${SLIDES.length}`;
+  bar.style.width=`${((i+1)/SLIDES.length)*100}%`;
+  grid.querySelectorAll('.thumb').forEach((t,n)=>t.classList.toggle('cur',n===i));
+  location.hash=i+1;
+}
+function paint(){ fragEls.forEach((el,n)=>el.classList.toggle('show',n<frag)); }
+function next(){ if(frag<fragEls.length){frag++;paint();} else if(i<SLIDES.length-1) go(i+1); }
+function prev(){ if(frag>0){frag--;paint();} else if(i>0) go(i-1,'end'); }
+function toggleGrid(on){ grid.classList.toggle('on', on===undefined?!grid.classList.contains('on'):on); }
+
+addEventListener('keydown',e=>{
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const k=e.key.toLowerCase();
+  if(k==='arrowright'||k===' '||k==='pagedown'){e.preventDefault();next();}
+  else if(k==='arrowleft'||k==='pageup'){e.preventDefault();prev();}
+  else if(k==='home')go(0); else if(k==='end')go(SLIDES.length-1);
+  else if(k==='s'){notes.classList.toggle('on');}
+  else if(k==='o'){toggleGrid();}
+  else if(k==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+  else if(k==='escape'){toggleGrid(false);notes.classList.remove('on');}
+});
+
+
+/* Generic: any <button data-reveal="id"> toggles <div id="id" class="reveal-body">. */
+function mountReveals(){
+  document.querySelectorAll('[data-reveal]').forEach(btn=>btn.onclick=()=>{
+    const body=document.getElementById(btn.dataset.reveal);
+    body.classList.toggle('open');
+    btn.textContent = body.classList.contains('open') ? 'Hide the answer' : 'Reveal the answer';
+  });
+}
+
+/* Generic: expandable rows. Each item {n,t,s,d,fix}. */
+function expList(items){
+  return items.map(f=>`
+    <div class="exp"><details><summary>
+      <span class="idx">${f.n}</span><span class="ttl">${f.t}</span>
+      <span class="hint">${f.s}</span></summary>
+      <div class="detail">${f.d}${f.fix?`<div class="fix"><b>${f.fixLabel||'Response'}:</b> ${f.fix}</div>`:''}</div>
+    </details></div>`).join('');
+}
+
+/* Generic: hidden-answer question list. Each item {q,a}. */
+function quizList(items){
+  return items.map((q,n)=>`
+    <div class="exp"><details><summary>
+      <span class="idx">${n+1}</span><span class="hint" style="color:var(--ink)">${q.q}</span>
+      </summary><div class="detail" style="padding-left:56px">${q.a}</div></details></div>`).join('');
+}
+
+/* Author helper: run overflowCheck() in the console before presenting.
+   A slide that overflows the 1280x720 stage is cropped on a projector and you
+   will not notice until you are standing in front of the room. */
+window.overflowCheck=()=>{
+  const bad=[];
+  document.querySelectorAll('.slide').forEach((el,n)=>{
+    const was=el.classList.contains('on'); el.classList.add('on');
+    const over=el.scrollHeight-el.clientHeight;
+    if(over>2) bad.push(`slide ${n+1} "${SLIDES[n].t}" overflows by ${over}px`);
+    if(!was) el.classList.remove('on');
+  });
+  console.log(bad.length?bad.join('\n'):'All slides fit the stage.');
+  return bad;
+};
+
+build(); fit();
+go(location.hash ? Math.max(0,parseInt(location.hash.slice(1),10)-1) : 0);
+</script>
+</body>
+</html>

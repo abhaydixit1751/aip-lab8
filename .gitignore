@@ -1,0 +1,25 @@
+# Outputs -- rebuilt from code + data + params, so not committed to git
+# (DVC caches the big ones). EXCEPT metrics files: those are small, and git
+# tracking them is what lets `dvc metrics diff` compare against a commit.
+/artifacts/**
+!/artifacts/**/
+!/artifacts/**/metrics.json
+mlflow.db
+mlruns/
+
+# Data is versioned by DVC, not git (Lab 8, Part C). `dvc add` writes the
+# small .dvc pointer file that IS committed.
+/data/claims/*.parquet
+
+# The stand-in DVC remote for Lab 8. In industry this is S3 / GCS / Azure Blob.
+/.dvcstore/
+
+# Environments and caches. The course environment lives in the container at
+# /opt/venv; a host .venv must never reach git or a Docker image.
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets -- API keys go in .env, and .env never goes anywhere.
+.env

@@ -1,0 +1,52 @@
+<svg viewBox="0 0 1000 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Module 1, Labs 1 to 7" >
+    <path d="M71.42857142857143 64H928.5714285714286" stroke="#DCE0E7" stroke-width="4"/>
+    <circle cx="71.42857142857143" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(49.42857142857143,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h17l8 8v28H10z"/><path d="M27 4v8h8M15 20h15M15 26h15M15 32h10"/></g>
+      <text x="71.42857142857143" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 1</text>
+      <text x="71.42857142857143" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">The Reliable</text>
+      <text x="71.42857142857143" y="170" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">Extractor</text>
+      <text x="71.42857142857143" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">messy tickets →</text><text x="71.42857142857143" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">valid records</text>
+      <text x="71.42857142857143" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="30" font-weight="800" fill="#AE4224">0.930</text>
+      <text x="71.42857142857143" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">field accuracy</text><circle cx="214.28571428571428" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(192.28571428571428,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 39h35"/><rect x="9" y="24" width="6" height="15"/><rect x="19" y="14" width="6" height="25"/><rect x="29" y="6" width="6" height="33"/></g>
+      <text x="214.28571428571428" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 2</text>
+      <text x="214.28571428571428" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">The Prompt Lab</text>
+      
+      <text x="214.28571428571428" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">a harness that</text><text x="214.28571428571428" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">picks the prompt</text>
+      <text x="214.28571428571428" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="30" font-weight="800" fill="#AE4224">7</text>
+      <text x="214.28571428571428" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">configs compared</text><circle cx="357.14285714285717" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(335.14285714285717,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="11"/><path d="M26 26l12 12"/></g>
+      <text x="357.14285714285717" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 3</text>
+      <text x="357.14285714285717" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">Semantic Search</text>
+      
+      <text x="357.14285714285717" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">retrieval that</text><text x="357.14285714285717" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">finds it</text>
+      <text x="357.14285714285717" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="17" font-weight="800" fill="#AE4224">0.701 → 0.853</text>
+      <text x="357.14285714285717" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">nDCG@10 vs BM25</text><circle cx="500" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(478,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h32v24H20l-8 8v-8H6z"/><path d="M13 15h18M13 22h12"/></g>
+      <text x="500" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 4</text>
+      <text x="500" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">RAG v1</text>
+      
+      <text x="500" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">answers with</text><text x="500" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">citations</text>
+      <text x="500" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="30" font-weight="800" fill="#AE4224">1.000</text>
+      <text x="500" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">citation validity</text><circle cx="642.8571428571429" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(620.8571428571429,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 24h9l4-12 7 22 5-14 3 4h10"/></g>
+      <text x="642.8571428571429" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 5</text>
+      <text x="642.8571428571429" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">RAG v2</text>
+      
+      <text x="642.8571428571429" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">diagnose, fix,</text><text x="642.8571428571429" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">prove</text>
+      <text x="642.8571428571429" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="17" font-weight="800" fill="#AE4224">fix ≠ better</text>
+      <text x="642.8571428571429" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">diagnose first</text><circle cx="785.7142857142858" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(763.7142857142858,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l15 6v11c0 10-7 16-15 19C14 37 7 31 7 21V10z"/><path d="M15 22l5 5 9-10"/></g>
+      <text x="785.7142857142858" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 6</text>
+      <text x="785.7142857142858" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">Tools and</text>
+      <text x="785.7142857142858" y="170" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">Red-Teaming</text>
+      <text x="785.7142857142858" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">a tool loop with</text><text x="785.7142857142858" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">guardrails</text>
+      <text x="785.7142857142858" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="30" font-weight="800" fill="#AE4224">17</text>
+      <text x="785.7142857142858" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">attacks in the suite</text><circle cx="928.5714285714286" cy="64" r="34" fill="#FFFFFF" stroke="#1D5E5C" stroke-width="3"/>
+      <g transform="translate(906.5714285714286,42)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4c8 6 10 16 8 24H14C12 20 14 10 22 4z"/><circle cx="22" cy="17" r="3"/><path d="M14 28l-6 8h8M30 28l6 8h-8"/></g>
+      <text x="928.5714285714286" y="126" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#626A78">LAB 7</text>
+      <text x="928.5714285714286" y="150" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#14161B">Ship It</text>
+      
+      <text x="928.5714285714286" y="200" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">Aurora as a</text><text x="928.5714285714286" y="220" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="16" fill="#2B303A">service</text>
+      <text x="928.5714285714286" y="276" text-anchor="middle" font-family="Archivo,Helvetica,sans-serif" font-size="17" font-weight="800" fill="#AE4224">SLO · cost · CI</text>
+      <text x="928.5714285714286" y="300" text-anchor="middle" font-family="Source Serif 4,Georgia,serif" font-size="14" fill="#626A78">a gate on every change</text></svg>

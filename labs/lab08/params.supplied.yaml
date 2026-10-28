@@ -1,0 +1,40 @@
+# Lab 8 -- DO NOT EDIT. A frozen copy of the starting params.yaml: a faithful
+# transcription of supplied_model/train_model.py, leak included, no seed.
+# Kept so Part C3 can log the "as handed over" run to MLflow beside yours.
+run_name: supplied-transcribed
+
+data:
+  path: data/claims/claims.parquet
+  label: rejected
+  train_months: [0, 11]
+  holdout_months: [12, 13]
+
+model:
+  hyperparameters:
+    max_iter: 250
+    learning_rate: 0.08
+
+features:
+  numeric:
+    - sum_insured
+    - eldest_age
+    - policy_tenure_months
+    - city_tier
+    - claim_amount
+    - claim_to_si_ratio
+    - length_of_stay_days
+    - room_rent_ratio
+    - claims_in_last_90d
+    - assessor_note_length
+  categorical:
+    - plan
+    - language
+    - channel
+    - diagnosis_group
+    - admission_type
+    - hospital_network
+    - claim_route
+  boolean:
+    - declared_ped
+    - documents_complete
+    - notified_on_time

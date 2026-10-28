@@ -1,0 +1,6 @@
+# An allowlist: ignore everything, then re-admit only what the image needs.
+*
+!pyproject.toml
+!uv.lock
+!app.py
+!tests/

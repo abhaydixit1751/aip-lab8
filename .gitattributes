@@ -1,0 +1,14 @@
+# Force LF line endings everywhere.
+#
+# On Windows, git's default converts line endings to CRLF on checkout. Shell
+# scripts and Dockerfiles copied into a Linux container with CRLF fail with
+#   /bin/sh^M: bad interpreter
+# or silently odd behaviour. This file prevents it for every student at once.
+* text=auto eol=lf
+
+*.parquet binary
+*.pkl     binary
+*.joblib  binary
+*.png     binary
+*.pptx    binary
+*.docx    binary

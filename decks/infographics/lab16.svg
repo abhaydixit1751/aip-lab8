@@ -1,0 +1,21 @@
+<svg viewBox="0 0 1000 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lab 16 at a glance" >
+    <rect x="0" y="6" width="8" height="52" rx="3" fill="#AE4224"/>
+    <text x="22" y="28" font-family="Archivo,Helvetica,sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#626A78">LAB 16 · ARC C</text>
+    <text x="22" y="56" font-family="Archivo,Helvetica,sans-serif" font-size="28" font-weight="700" fill="#14161B">Tools as a standard</text>
+    <text x="1000" y="50" text-anchor="end" font-family="Source Serif 4,Georgia,serif" font-size="21" font-style="italic" fill="#2B303A">“Tools we can test.”</text>
+    <rect x="0" y="78" width="290" height="150" rx="14" fill="#F1F3F6" stroke="#626A78" stroke-width="2"/>
+      <g transform="translate(18,96)" fill="none" stroke="#626A78" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="22" cy="9" rx="14" ry="5"/><path d="M8 9v24c0 3 6 5 14 5s14-2 14-5V9"/><path d="M8 21c0 3 6 5 14 5s14-2 14-5"/></g>
+      <text x="74" y="112" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.6" fill="#626A78">GIVEN</text>
+      <text x="20" y="166" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">A partner's domain</text><text x="20" y="192" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">pack</text>
+    <path d="M300 153h30M320 143l10 10-10 10" fill="none" stroke="#626A78" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="342" y="78" width="290" height="150" rx="14" fill="#DCEBE8" stroke="#1D5E5C" stroke-width="2"/>
+      <g transform="translate(360,96)" fill="none" stroke="#1D5E5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5v9M28 5v9M11 14h22v8a11 11 0 01-22 0z"/><path d="M22 33v7"/></g>
+      <text x="416" y="112" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.6" fill="#626A78">YOU BUILD</text>
+      <text x="362" y="166" font-family="Source Serif 4,Georgia,serif" font-size="22" fill="#14161B">An MCP tool server</text>
+    <path d="M642 153h30M662 143l10 10-10 10" fill="none" stroke="#626A78" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="684" y="78" width="316" height="150" rx="14" fill="#F7E7E1" stroke="#AE4224" stroke-width="2"/>
+    <text x="706" y="112" font-family="Archivo,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="1.6" fill="#626A78">YOU PROVE</text>
+    <text x="706" y="166" font-family="Archivo,Helvetica,sans-serif" font-size="52" font-weight="800" fill="#AE4224">59 / 60</text>
+    <text x="706" y="196" font-family="Source Serif 4,Georgia,serif" font-size="18" fill="#2B303A">calls identical from two</text><text x="706" y="218" font-family="Source Serif 4,Georgia,serif" font-size="18" fill="#2B303A">clients</text>
+    <text x="0" y="262" font-family="IBM Plex Mono,Menlo,monospace" font-size="15" fill="#626A78">MCP  ·  YAML contracts</text>
+  </svg>

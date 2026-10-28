@@ -1,0 +1,25 @@
+{
+  // Open this folder in VS Code or Cursor and choose "Reopen in Container".
+  // It uses the same compose.yaml as `make shell`, so both paths give students
+  // the identical environment.
+  "name": "AI in Practice 2",
+  "dockerComposeFile": ["../compose.yaml"],
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "student",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-containers"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "forwardPorts": [18500, 18000]
+}
